@@ -17,6 +17,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.helloworld.ui.theme.HelloWorldTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun Greet(modifier: Modifier = Modifier){
@@ -41,6 +45,21 @@ fun Greet(modifier: Modifier = Modifier){
             }
             Text(text = greetingText)
     }
+}
+
+fun Int.isEven(): Boolean {
+    return this % 2 == 0
+}
+
+fun Date.longDateString() : String  {
+    val format = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    return format.format(this)
+}
+
+fun Date.dayNumber(): Int {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    return calendar.get(Calendar.DAY_OF_YEAR)
 }
 
 @Preview(showBackground = true)
