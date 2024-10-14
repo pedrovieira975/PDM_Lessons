@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -30,16 +31,83 @@ import com.example.ui.components.CalcButton
 fun CalculatorView(modifier: Modifier = Modifier ){
 
     var display by remember { mutableStateOf("0") }
+    var operand by remember { mutableDoubleStateOf(0.0) }
+    var operation by remember { mutableStateOf("") }
+
+    fun getDisplay() : Double {
+        return display.toDouble()
+    }
+
+    fun setDisplay(value: Double) {
+        if ( value % 1 == 0.0) {
+            display = value.toInt().toString()
+        } else {
+            display = value.toString()
+        }
+    }
+
+    var userIsInTheMiddleOfTyping by remember {
+        mutableStateOf(false)
+    }
 
     val onNumPress : (String) -> Unit = { num ->
-        if (display.length <= 8) {
-
+        if(userIsInTheMiddleOfTyping) {
             if (display == "0") {
-                display = num
+                if (num == ".") {
+                    display = "0."
+                } else {
+                    display = num
+                }
             } else {
-                display += num
+                if (num == ".") {
+                    if (!display.contains(".")) {
+                        display += num
+                    }
+                } else {
+                    display += num
+                }
             }
+        }else{
+            display = num
         }
+
+        userIsInTheMiddleOfTyping = true
+    }
+
+    val onOperationPressed : (String) -> Unit = { op ->
+        userIsInTheMiddleOfTyping = false
+        if (operation.isNotEmpty()) {
+            val result = when (operation) {
+                "+" -> operand + getDisplay()
+                "-" -> operand - getDisplay()
+                "x" -> operand * getDisplay()
+                "/" -> operand / getDisplay()
+                "%" -> operand / 100
+//                "√" -> Math.sqrt(operand)
+//                "±" -> -operand
+                "+/-" -> getDisplay()
+                "=" -> getDisplay()
+                else -> {
+                    operation = ""
+                    getDisplay()
+                }
+            }
+            setDisplay(result)
+        }
+        operand = display.toDouble()
+        operation = op
+    }
+
+    fun clear() {
+        display = "0"
+        operand = 0.0
+        operation = ""
+        userIsInTheMiddleOfTyping = false
+    }
+
+    fun toggleSign() {
+        val currentValue = getDisplay()
+        setDisplay(currentValue * -1)
     }
 
     Column(modifier = modifier
@@ -55,53 +123,26 @@ fun CalculatorView(modifier: Modifier = Modifier ){
                 modifier = Modifier.weight(1f),
                 label = "AC",
                 specialOperation = true,
-                onButtonPress = onNumPress
+                onButtonPress = { clear() }
             )
             CalcButton(
                 modifier = Modifier.weight(1f),
                 label = "+/-",
                 specialOperation = true,
-                onButtonPress = onNumPress
+                onButtonPress = { toggleSign() }
             )
             CalcButton(
                 modifier = Modifier.weight(1f),
                 specialOperation = true,
                 label = "%",
-                onButtonPress = onNumPress
+                onButtonPress = onOperationPressed
             )
             CalcButton(
                 modifier = Modifier.weight(1f),
                 label = "/",
                 isOperation = true,
-                onButtonPress = onNumPress
+                onButtonPress = onOperationPressed
             )
-
-//            Button(
-//                onClick = { display += "AC" }, modifier = Modifier.weight(1f)
-//                    .aspectRatio(1f)
-//                    .padding(4.dp))
-//                    {
-//                Text(text = "AC",
-//                    style = MaterialTheme.typography.bodyLarge)
-//            }
-//            Button(
-//                onClick = { display += "+/-" }, modifier = Modifier.weight(1f)
-//                    .aspectRatio(1f)
-//                    .padding(4.dp)) {
-//                Text(text = "+/-")
-//            }
-//            Button(
-//                onClick = { display += "%" }, modifier = Modifier.weight(1f)
-//                    .aspectRatio(1f)
-//                    .padding(4.dp)) {
-//                Text(text = "%")
-//            }
-//            Button(
-//                onClick = {display += "/"}, modifier = Modifier.weight(1f)
-//                    .aspectRatio(1f)
-//                    .padding(4.dp)){
-//                Text(text = "/")
-//            }
         }
         Row {
             CalcButton(
@@ -123,7 +164,7 @@ fun CalculatorView(modifier: Modifier = Modifier ){
                 modifier = Modifier.weight(1f),
                 label = "x",
                 isOperation = true,
-                onButtonPress = onNumPress
+                onButtonPress = onOperationPressed
             )
         }
         Row {
@@ -146,7 +187,7 @@ fun CalculatorView(modifier: Modifier = Modifier ){
                 modifier = Modifier.weight(1f),
                 label = "-",
                 isOperation = true,
-                onButtonPress = onNumPress
+                onButtonPress = onOperationPressed
             )
         }
         Row {
@@ -169,7 +210,7 @@ fun CalculatorView(modifier: Modifier = Modifier ){
                 modifier = Modifier.weight(1f),
                 label = "+",
                 isOperation = true,
-                onButtonPress = onNumPress
+                onButtonPress = onOperationPressed
             )
         }
         Row {
@@ -181,14 +222,14 @@ fun CalculatorView(modifier: Modifier = Modifier ){
             )
             CalcButton(
                 modifier = Modifier.weight(1f),
-                label = ",",
+                label = ".",
                 onButtonPress = onNumPress
             )
             CalcButton(
                 modifier = Modifier.weight(1f),
                 label = "=",
                 isOperation = true,
-                onButtonPress = onNumPress
+                onButtonPress = onOperationPressed
             )
         }
     }

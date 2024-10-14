@@ -33,7 +33,7 @@ fun CalcButton(modifier: Modifier = Modifier,
     Button(
         modifier = modifier
             .then(
-                if (!expandHorizontally) Modifier.aspectRatio(1f) else Modifier.aspectRatio(2f) // Aplica aspectRatio apenas se expandHorizontally for falso
+                if (!expandHorizontally) Modifier.aspectRatio(1f) else Modifier.aspectRatio(2f)
             )
 
             .padding(4.dp),
