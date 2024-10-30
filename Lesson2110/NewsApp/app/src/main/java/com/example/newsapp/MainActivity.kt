@@ -9,8 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.internal.composableLambda
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.newsapp.ui.theme.NewsAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,28 +23,31 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NewsAppTheme {
+                val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    HomeView(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+
+                    NavHost(navController = navController,
+                        startDestination = "home",
+                        modifier = Modifier.padding(innerPadding))  {
+                        composable( route = "home"){
+                            HomeView(
+                                modifier = Modifier.padding(innerPadding),
+
+                                onArticleClick = {
+                                    navController.navigate("article/${it}")
+                                }
+                            )
+                        }
+                        composable(route = "article/{url}"){
+                            val url = it.arguments?.getString("url")
+                            url?.let {
+                                ArticleDetailView(url = it)
+                            }
+                        }
+                    }
+
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NewsAppTheme {
-        Greeting("Android")
     }
 }
