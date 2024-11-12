@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "430697841735",
+    "project_id": "myshoppinglist-220f6",
+    "storage_bucket": "myshoppinglist-220f6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:430697841735:android:bdfa532191703bfaec9d62",
+        "android_client_info": {
+          "package_name": "com.example.myshoppinglist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_h0oHMMxToUIG1m4ZhpcWeqj0GqtZ3F0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
