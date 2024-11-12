@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">430697841735</string>
+    <string name="google_api_key" translatable="false">AIzaSyD_h0oHMMxToUIG1m4ZhpcWeqj0GqtZ3F0</string>
+    <string name="google_app_id" translatable="false">1:430697841735:android:bdfa532191703bfaec9d62</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyD_h0oHMMxToUIG1m4ZhpcWeqj0GqtZ3F0</string>
+    <string name="google_storage_bucket" translatable="false">myshoppinglist-220f6.firebasestorage.app</string>
+    <string name="project_id" translatable="false">myshoppinglist-220f6</string>
+</resources>
