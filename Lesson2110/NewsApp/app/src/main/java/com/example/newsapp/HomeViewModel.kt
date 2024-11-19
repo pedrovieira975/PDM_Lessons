@@ -25,7 +25,6 @@ class HomeViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ArticleState())
     val uiState: StateFlow<ArticleState> = _uiState.asStateFlow()
 
-
     fun fetchArticles() {
         _uiState.value = ArticleState(
             isLoading = true
@@ -36,7 +35,7 @@ class HomeViewModel : ViewModel() {
             .build()
 
         client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
+            override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 _uiState.value = ArticleState(
                     errorMessage = e.message ?: "",
@@ -44,7 +43,7 @@ class HomeViewModel : ViewModel() {
                 )
             }
 
-            override fun onResponse(call: okhttp3.Call, response: Response) {
+            override fun onResponse(call: Call, response: Response) {
                 response.use {
                     if (!response.isSuccessful) throw IOException("Unexpected code $response")
 

@@ -7,14 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.myshoppinglist.ui.home.AddListTypesView
+import com.example.myshoppinglist.ui.home.ListTypesView
+import com.example.myshoppinglist.ui.login.LoginView
 import com.example.myshoppinglist.ui.theme.MyShoppingListTheme
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -34,14 +34,21 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         modifier = Modifier.padding(innerPadding),
                         navController = navController,
-                        startDestination = "login") {
-                        composable("login") {
-                            LoginView {
-                                navController.navigate("home")
+                        startDestination = Screen.Login.route) {
+                        composable(Screen.Login.route) {
+                            LoginView{
+                                navController.navigate(Screen.ListTypes.route)
                             }
                         }
-                        composable("home") {
-                            Text(text = "Home")
+                        composable(Screen.ListTypes.route) {
+                            ListTypesView(){
+                                navController.navigate(Screen.AddListType.route)
+                            }
+                        }
+                        composable(Screen.AddListType.route) {
+                            AddListTypesView(
+                                navController = navController
+                            )
                         }
                     }
                 }
@@ -53,9 +60,15 @@ class MainActivity : ComponentActivity() {
 
                 val currentUser = auth.currentUser
                 if (currentUser != null) {
-                    navController.navigate("home")
+                    navController.navigate(Screen.ListTypes.route)
                 }
             }
         }
     }
+}
+
+sealed class Screen(val route : String){
+    object Login : Screen("login")
+    object ListTypes : Screen("list_types")
+    object AddListType : Screen("add_list_type")
 }
