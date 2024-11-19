@@ -32,3 +32,9 @@ val Typography = Typography(
     )
     */
 )
+
+val appFontBold16 = TextStyle(
+    fontWeight = FontWeight.Bold,
+    fontSize = 16.sp,
+
+)

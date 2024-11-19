@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.newsapp.ArticleRowView
+import com.example.newsapp.Models.Article
 import com.example.newsapp.Models.encodeURL
 import com.example.newsapp.ui.theme.NewsAppTheme
 import com.example.newsapp.ui.theme.NewsAppTheme
@@ -26,6 +27,22 @@ fun HomeView( modifier: Modifier = Modifier ,
     val viewModel : HomeViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
 
+    HomeViewContent(
+        modifier = modifier,
+        uiState = uiState,
+        onArticleClick = onArticleClick
+    )
+
+    LaunchedEffect(key1 = true) {
+        viewModel.fetchArticles()
+    }
+}
+
+@Composable
+fun HomeViewContent(
+    modifier: Modifier = Modifier,
+    uiState: ArticleState,
+    onArticleClick: (String) -> Unit = {}) {
     if (uiState.isLoading) {
         Box(modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center)
@@ -44,7 +61,7 @@ fun HomeView( modifier: Modifier = Modifier ,
                 items = uiState.articles
             ){
                     _, item ->
-                ArticleRowView(modifier = modifier
+                ArticleRowView(modifier = Modifier
                     .clickable {
                         onArticleClick(item.url?.encodeURL() ?: "")
                     },
@@ -53,16 +70,31 @@ fun HomeView( modifier: Modifier = Modifier ,
         }
     }
 
-
-    LaunchedEffect(key1 = true) {
-        viewModel.fetchArticles()
-    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun HomeViewPreview() {
     NewsAppTheme {
-        HomeView()
+        HomeViewContent(
+            uiState = ArticleState(
+                articles = arrayListOf(
+                    Article(
+                        title = "Title 1",
+                        description = "Description 1",
+                        url = "https://www.google.com",
+                        urlToImage = null,
+                        publishedAt = null
+                    ),
+                    Article(
+                        title = "Title 2",
+                        description = "Description 2",
+                        url = "https://www.google.com",
+                        urlToImage = null,
+                        publishedAt = null
+                    ),
+                )
+            )
+        )
     }
 }
