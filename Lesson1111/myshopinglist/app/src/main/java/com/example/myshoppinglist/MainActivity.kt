@@ -71,5 +71,4 @@ sealed class Screen(val route : String){
     object Login : Screen("login")
     object ListTypes : Screen("list_types")
     object AddListType : Screen("add_list_type")
-    //Teste
 }

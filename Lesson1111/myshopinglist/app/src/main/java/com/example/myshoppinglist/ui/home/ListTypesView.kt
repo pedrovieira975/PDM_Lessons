@@ -86,6 +86,16 @@ fun ListTypesViewContent(
                 contentDescription = "add list",
                 colorFilter = ColorFilter.tint(Color.White))
         }
+        Button(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp)
+                .height(80.dp)
+                .width(80.dp)
+            ,
+            onClick = {
+
+            }) {}
     }
 
 }
