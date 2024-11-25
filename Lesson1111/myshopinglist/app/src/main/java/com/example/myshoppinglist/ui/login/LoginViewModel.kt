@@ -62,4 +62,14 @@ class LoginViewModel : ViewModel() {
             }
     }
 
-}
+    fun logout( onLogoutSuccess: () -> Unit) {
+
+        state.value = state.value.copy(isLoading = true)
+        Firebase.auth.signOut()
+        state.value = state.value.copy(error = null)
+        Log.d(TAG, "signOut:sucess")
+        onLogoutSuccess()
+        }
+    }
+
+
