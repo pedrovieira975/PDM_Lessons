@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.myshoppinglist.ui.home.AddListTypesView
+import com.example.myshoppinglist.ui.home.EachListTypeView
 import com.example.myshoppinglist.ui.home.ListTypesView
 import com.example.myshoppinglist.ui.login.LoginView
 import com.example.myshoppinglist.ui.theme.MyShoppingListTheme
@@ -41,12 +42,25 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable(Screen.ListTypes.route) {
-                            ListTypesView(){
-                                navController.navigate(Screen.AddListType.route)
-                            }
+                            ListTypesView (
+                                onNavigateToAddList = {navController.navigate(Screen.AddListType.route)},
+                                onNavigateToEachListType = {navController.navigate(Screen.EachListType.route)},
+                                onLogoutSucess = {navController.navigate(Screen.Login.route)}
+                            )
+                        }
+
+                        composable(Screen.AddListType.route) {
+                            AddListTypesView(
+                                navController = navController
+                            )
                         }
                         composable(Screen.AddListType.route) {
                             AddListTypesView(
+                                navController = navController
+                            )
+                        }
+                        composable(Screen.EachListType.route) {
+                            EachListTypeView(
                                 navController = navController
                             )
                         }
@@ -71,4 +85,5 @@ sealed class Screen(val route : String){
     object Login : Screen("login")
     object ListTypes : Screen("list_types")
     object AddListType : Screen("add_list_type")
+    object EachListType : Screen("each_list_type")
 }

@@ -1,6 +1,7 @@
 package com.example.myshoppinglist.ui.home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,7 +37,9 @@ import androidx.compose.ui.res.painterResource
 @Composable
 fun ListTypesView(
     modifier: Modifier = Modifier,
-    onNavigateToAddList : ()->Unit
+    onNavigateToAddList : ()->Unit,
+    onNavigateToEachListType : ()->Unit,
+    onLogoutSucess : ()->Unit
 ){
 
     val viewModel by remember { mutableStateOf(ListTypesViewModel()) }
@@ -45,7 +48,9 @@ fun ListTypesView(
     ListTypesViewContent(
         modifier = modifier,
         state = state.value,
-        onNavigateToAddList = onNavigateToAddList)
+        onNavigateToAddList = onNavigateToAddList,
+        onNavigateToEachListType = onNavigateToEachListType,
+        onLogoutSucess = onLogoutSucess)
 
     LaunchedEffect (key1 = Unit){
         viewModel.loadListTypes()
@@ -55,18 +60,25 @@ fun ListTypesView(
 fun ListTypesViewContent(
     modifier: Modifier = Modifier,
     state: ListState,
-    onNavigateToAddList : ()->Unit = {}
+    onNavigateToAddList : ()->Unit = {},
+    onNavigateToEachListType : ()->Unit = {},
+    onLogoutSucess : ()->Unit = {}
 ){
 
     Box(modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomEnd
     ){
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize(),
+            ) {
             LazyColumn {
                 itemsIndexed(
                     items = state.listItems
                 ) { index, item ->
-                    ListTypeRowView(listItem = item)
+                    ListTypeRowView(
+                        listItem = item,
+                        modifier = modifier.clickable {
+                            onNavigateToEachListType()
+                        })
                 }
             }
         }
@@ -94,8 +106,17 @@ fun ListTypesViewContent(
                 .width(80.dp)
             ,
             onClick = {
+                onLogoutSucess()
+            }) {
+            Image(
+                modifier = Modifier
+                    .size(60.dp),
+                painter = painterResource(R.drawable.baseline_logout_24),
+                contentDescription = "logout",
+                colorFilter = ColorFilter.tint(Color.White)
+            )
+        }
 
-            }) {}
     }
 
 }
