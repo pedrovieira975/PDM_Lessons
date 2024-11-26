@@ -24,10 +24,6 @@
         "source": "C:\\Users\\pedro\\.gradle\\daemon\\8.7\\com.example.myshoppinglist.app-main-69:\\mipmap-xxxhdpi\\ic_launcher_round.webp"
     },
     {
-        "merged": "com.example.myshoppinglist.app-debug-67:/drawable_baseline_add_24.xml.flat",
-        "source": "com.example.myshoppinglist.app-main-69:/drawable/baseline_add_24.xml"
-    },
-    {
         "merged": "C:\\Users\\pedro\\.gradle\\daemon\\8.7\\com.example.myshoppinglist.app-debug-67:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
         "source": "C:\\Users\\pedro\\.gradle\\daemon\\8.7\\com.example.myshoppinglist.app-main-69:\\mipmap-anydpi-v26\\ic_launcher.xml"
     },
@@ -46,6 +42,14 @@
     {
         "merged": "C:\\Users\\pedro\\.gradle\\daemon\\8.7\\com.example.myshoppinglist.app-debug-67:\\mipmap-xxhdpi_ic_launcher_round.webp.flat",
         "source": "C:\\Users\\pedro\\.gradle\\daemon\\8.7\\com.example.myshoppinglist.app-main-69:\\mipmap-xxhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.example.myshoppinglist.app-debug-67:/drawable_baseline_logout_24.xml.flat",
+        "source": "com.example.myshoppinglist.app-main-69:/drawable/baseline_logout_24.xml"
+    },
+    {
+        "merged": "C:\\Users\\pedro\\.gradle\\daemon\\8.7\\com.example.myshoppinglist.app-debug-67:\\drawable_baseline_add_24.xml.flat",
+        "source": "C:\\Users\\pedro\\.gradle\\daemon\\8.7\\com.example.myshoppinglist.app-main-69:\\drawable\\baseline_add_24.xml"
     },
     {
         "merged": "C:\\Users\\pedro\\.gradle\\daemon\\8.7\\com.example.myshoppinglist.app-debug-67:\\mipmap-hdpi_ic_launcher_round.webp.flat",
