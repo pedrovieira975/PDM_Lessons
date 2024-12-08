@@ -1,4 +1,4 @@
-package com.example.newsapp
+package com.example.newsapp.ui.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -14,10 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.newsapp.ArticleRowView
 import com.example.newsapp.Models.Article
 import com.example.newsapp.Models.encodeURL
-import com.example.newsapp.ui.theme.NewsAppTheme
 import com.example.newsapp.ui.theme.NewsAppTheme
 
 @Composable
@@ -69,7 +67,6 @@ fun HomeViewContent(
             }
         }
     }
-
 }
 
 @Preview(showBackground = true)
@@ -84,14 +81,16 @@ fun HomeViewPreview() {
                         description = "Description 1",
                         url = "https://www.google.com",
                         urlToImage = null,
-                        publishedAt = null
+                        publishedAt = null,
+                        author = "Author 1"  // Add an author here
                     ),
                     Article(
                         title = "Title 2",
                         description = "Description 2",
                         url = "https://www.google.com",
                         urlToImage = null,
-                        publishedAt = null
+                        publishedAt = null,
+                        author = "Author 2"  // Add an author here
                     ),
                 )
             )
