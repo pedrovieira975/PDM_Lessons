@@ -1,5 +1,4 @@
-package com.example.newsapp
-
+package com.example.newsapp.ui.home
 
 import androidx.lifecycle.ViewModel
 import com.example.newsapp.Models.Article
@@ -11,7 +10,7 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.json.JSONObject
+import org.json.JSONArray
 import java.io.IOException
 
 data class ArticleState (
@@ -31,40 +30,42 @@ class HomeViewModel : ViewModel() {
         )
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://newsapi.org/v2/everything?q=tesla&from=2024-09-28&sortBy=publishedAt&apiKey=97657de396f346368122f45ab09de23a")
+            .url("https://www.publico.pt/api/list/ultimas")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 _uiState.value = ArticleState(
-                    errorMessage = e.message ?: "",
+                    errorMessage = e.message ?: "Erro desconhecido",
                     isLoading = false
                 )
             }
 
             override fun onResponse(call: Call, response: Response) {
                 response.use {
-                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
-
-                    var articlesResult = arrayListOf<Article>()
-                    val result = response.body!!.string()
-
-                    val jsonObject = JSONObject(result)
-                    val status = jsonObject.getString("status")
-                    if (status == "ok") {
-                        val articlesArray = jsonObject.getJSONArray("articles")
-                        for (index in 0 until articlesArray.length()) {
-                            val articleObject = articlesArray.getJSONObject(index)
-                            val article = Article.fromJson(articleObject)
-                            articlesResult.add(article)
-                            println(article.urlToImage)
-                        }
+                    if (!response.isSuccessful) {
                         _uiState.value = ArticleState(
-                            articles = articlesResult,
+                            errorMessage = "Erro ao obter dados da API: ${response.code}",
                             isLoading = false
                         )
+                        return
                     }
+
+                    val articlesResult = arrayListOf<Article>()
+                    val result = response.body!!.string()
+                    val articlesArray = JSONArray(result) // API do Público retorna uma lista
+
+                    for (i in 0 until articlesArray.length()) {
+                        val articleObject = articlesArray.getJSONObject(i)
+                        val article = Article.fromJson(articleObject)
+                        articlesResult.add(article)
+                    }
+
+                    _uiState.value = ArticleState(
+                        articles = articlesResult,
+                        isLoading = false
+                    )
                 }
             }
         })

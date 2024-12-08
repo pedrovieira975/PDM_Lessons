@@ -2,18 +2,27 @@ package com.example.newsapp.Models
 
 import org.json.JSONObject
 import java.net.URLEncoder
-import java.text.SimpleDateFormat
 import java.util.Date
+import java.text.SimpleDateFormat
+import java.util.*
 
-fun String.encodeURL() : String{
-    return  URLEncoder.encode(this, "UTF-8")
+// Remove ICU TimeZone import and use java.util.TimeZone
+import java.util.TimeZone
+
+fun String.encodeURL(): String {
+    return URLEncoder.encode(this, "UTF-8")
 }
 
-
-fun String.toDate(): Date {
-    //"2024-10-20T17:30:00Z"
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    return dateFormat.parse(this)
+fun String.toDate(): Date? {
+    return try {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US)
+        // Use java.util.TimeZone
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        dateFormat.parse(this)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null // Retorna null em caso de erro
+    }
 }
 
 fun Date.toStringDate(): String {
@@ -21,23 +30,31 @@ fun Date.toStringDate(): String {
     return dateFormat.format(this)
 }
 
-data class Article (
-    var title: String?,
-    var description: String?,
-    var url: String?,
-    var urlToImage: String?,
-    var publishedAt: Date?
-){
-    companion object{
-
+data class Article(
+    val title: String?,
+    val description: String?,
+    val url: String?,
+    val urlToImage: String?,
+    val publishedAt: Date?,
+    val author: String? // Novo campo para o autor
+) {
+    companion object {
         fun fromJson(articleObject: JSONObject): Article {
-            val title = articleObject.getString("title")
-            val description = articleObject.getString("description")
-            val url = articleObject.getString("url")
-            val urlToImage = articleObject.getString("urlToImage")
-            val publishedAt = articleObject.getString("publishedAt").toDate()
-            return Article(title, description, url, urlToImage, publishedAt)
+            val title = articleObject.optString("titulo")
+            val description = articleObject.optString("descricao")
+            val url = articleObject.optString("url")
+            val urlToImage = articleObject.optString("multimediaPrincipal")
+            val publishedAt = articleObject.optString("data").takeIf { it.isNotEmpty() }?.toDate()
+
+            // Extraindo o nome do autor, caso exista
+            val authorsArray = articleObject.optJSONArray("autores")
+            val author = if (authorsArray != null && authorsArray.length() > 0) {
+                authorsArray.getJSONObject(0).optString("nome")
+            } else {
+                null
+            }
+
+            return Article(title, description, url, urlToImage, publishedAt, author)
         }
     }
-
 }

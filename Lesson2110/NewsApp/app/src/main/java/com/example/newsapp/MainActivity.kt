@@ -8,15 +8,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.internal.composableLambda
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.newsapp.Models.Article
+import com.example.newsapp.ui.ArticleDetailView
+import com.example.newsapp.ui.home.HomeView
 import com.example.newsapp.ui.theme.NewsAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -27,14 +27,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             NewsAppTheme {
                 val navController = rememberNavController()
+//                var isBaseScreen by remember{ mutableStateOf(false) }
+//                var article by remember { mutableStateOf<Article?>(null) }
                 Scaffold(modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        TopAppBar(
-                            title = {
-                                Text(text = "News App")
-                            }
-                        )
-                    }
+//                    topBar = {
+//                        MyTopBar(title = "News App",
+////                            isBaseScreen = isBaseScreen,
+////                            article = article
+//                        )
+//                    },
+//                    bottomBar = {
+////                        BottomBar(navController = navController)
+//                    }
 
                 ) { innerPadding ->
 
