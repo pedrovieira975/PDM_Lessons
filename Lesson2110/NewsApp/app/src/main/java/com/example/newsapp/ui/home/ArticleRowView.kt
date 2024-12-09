@@ -83,7 +83,8 @@ fun ArticleRowViewPreview() {
         url = "https://www.example.com",
         urlToImage = null,
         publishedAt = mockDate,
-        author = "Autor Exemplo"  // Pass author value here
+        author = "Autor Exemplo",
+        content = "Conteúdo do artigo de exemplo." // Pass author value here
     )
 
     ArticleRowView(article = article)

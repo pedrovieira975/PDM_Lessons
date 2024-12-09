@@ -5,6 +5,9 @@ import java.net.URLEncoder
 import java.util.Date
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 
 // Remove ICU TimeZone import and use java.util.TimeZone
 import java.util.TimeZone
@@ -30,14 +33,21 @@ fun Date.toStringDate(): String {
     return dateFormat.format(this)
 }
 
+fun Article.toJsonString(): String {
+    return Json.encodeToString(this)
+}
+
+@Serializable
 data class Article(
     val title: String?,
     val description: String?,
     val url: String?,
     val urlToImage: String?,
     val publishedAt: Date?,
-    val author: String? // Novo campo para o autor
+    val author: String?, // Novo campo para o autor
+    val content: String?
 ) {
+
     companion object {
         fun fromJson(articleObject: JSONObject): Article {
             val title = articleObject.optString("titulo")
@@ -54,7 +64,7 @@ data class Article(
                 null
             }
 
-            return Article(title, description, url, urlToImage, publishedAt, author)
+            return Article(title, description, url, urlToImage, publishedAt, author, null)
         }
     }
 }
