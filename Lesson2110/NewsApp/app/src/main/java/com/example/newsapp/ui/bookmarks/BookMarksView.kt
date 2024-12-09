@@ -88,7 +88,8 @@ fun HomeViewPreview() {
                         url = "https://www.google.com",
                         urlToImage = null,
                         publishedAt = null,
-                        author = "Author 1"  // Add an author here
+                        author = "Author 1",
+                        content = null // Add an author here
                     ),
                     Article(
                         title = "Title 2",
@@ -96,7 +97,8 @@ fun HomeViewPreview() {
                         url = "https://www.google.com",
                         urlToImage = null,
                         publishedAt = null,
-                        author = "Author 2"  // Add an author here
+                        author = "Author 2",
+                        content = null // Add an author here
                     ),
                 )
             )

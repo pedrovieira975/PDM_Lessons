@@ -2,6 +2,8 @@ package com.example.newsapp.ui.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -10,31 +12,50 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.newsapp.Models.Article
 import com.example.newsapp.Models.encodeURL
+import com.example.newsapp.MyTopBar
 import com.example.newsapp.ui.theme.NewsAppTheme
 
+
+import com.example.newsapp.ui.components.NewsItem
+
 @Composable
-fun HomeView( modifier: Modifier = Modifier ,
-              onArticleClick: (String) -> Unit = {}) {
+fun HomeView(
+    modifier: Modifier = Modifier,
+    onArticleClick: (String) -> Unit,
+    allArticles: List<Article> // Esta lista deve ser fornecida ao chamar HomeView
+) {
+    val searchQuery = remember { mutableStateOf("") } // Use `remember` para armazenar o estado corretamente
 
-    val viewModel : HomeViewModel = viewModel()
-    val uiState by viewModel.uiState.collectAsState()
+//    val filteredArticles = allArticles.filter { article ->
+//        if (searchQuery.value.contains("some text", ignoreCase = true)) {
+//            // Realizar a busca ou ação
+//        }
+//    }
 
-    HomeViewContent(
-        modifier = modifier,
-        uiState = uiState,
-        onArticleClick = onArticleClick
-    )
+    Column(modifier = modifier) {
+        MyTopBar(
+            title = "Home",
+            onSearchQueryChanged = { query -> searchQuery.value = query }  // Passe a função aqui
+        )
 
-    LaunchedEffect(key1 = true) {
-        viewModel.fetchArticles()
+        LazyColumn {
+//            itemsIndexed(filteredArticles) { index, article ->  // Verifique aqui
+//                NewsItem(article = article, onClick = { onArticleClick(article.url ?: "") })
+//            }
+        }
     }
 }
+
+
 
 @Composable
 fun HomeViewContent(
@@ -82,7 +103,8 @@ fun HomeViewPreview() {
                         url = "https://www.google.com",
                         urlToImage = null,
                         publishedAt = null,
-                        author = "Author 1"  // Add an author here
+                        author = "Author 1",
+                        content = null // Add an author here
                     ),
                     Article(
                         title = "Title 2",
@@ -90,7 +112,8 @@ fun HomeViewPreview() {
                         url = "https://www.google.com",
                         urlToImage = null,
                         publishedAt = null,
-                        author = "Author 2"  // Add an author here
+                        author = "Author 2",
+                        content = null // Add an author here
                     ),
                 )
             )

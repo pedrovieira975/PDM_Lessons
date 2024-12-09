@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.room.common)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.generativeai)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -85,4 +86,5 @@ dependencies {
 
     implementation("io.coil-kt.coil3:coil-compose:3.0.0-rc01")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-rc01")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0") // Verifique se a versão é a mais recente
 }
