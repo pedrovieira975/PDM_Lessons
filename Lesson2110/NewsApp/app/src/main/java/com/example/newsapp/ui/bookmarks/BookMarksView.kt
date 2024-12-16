@@ -23,24 +23,27 @@ import com.example.newsapp.ui.home.HomeViewModel
 import com.example.newsapp.ui.theme.NewsAppTheme
 
 @Composable
-fun BookmarksView( modifier: Modifier = Modifier ,
-                   onArticleClick: (String) -> Unit = {}) {
+fun BookmarksView(
+    modifier: Modifier = Modifier,
+    onArticleClick: (String) -> Unit
+) {
+    val context = LocalContext.current // Obtém o contexto
+    val viewModel: HomeViewModel = viewModel() // Obtém o ViewModel compartilhado
+    val uiState by viewModel.uiState.collectAsState() // Observa o estado do ViewModel
 
-    val context = LocalContext.current
+    // Chama fetchArticles uma vez ao carregar a tela
+    LaunchedEffect(key1 = true) {
+        viewModel.fetchArticles(context)
+    }
 
-    val viewModel : HomeViewModel = viewModel()
-    val uiState by viewModel.uiState.collectAsState()
-
+    // Exibe o conteúdo da BookmarksView
     BookmarksViewContent(
         modifier = modifier,
         uiState = uiState,
         onArticleClick = onArticleClick
     )
-
-    LaunchedEffect(key1 = true) {
-        viewModel.fetchArticles()
-    }
 }
+
 
 @Composable
 fun BookmarksViewContent(

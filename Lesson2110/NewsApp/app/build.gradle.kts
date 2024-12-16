@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
 }
 
 android {
@@ -61,7 +62,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material3.android)
-    implementation(libs.androidx.room.common)
+//    implementation(libs.androidx.room.common)
     implementation(libs.androidx.room.ktx)
     implementation(libs.generativeai)
     testImplementation(libs.junit)
@@ -87,4 +88,8 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-compose:3.0.0-rc01")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-rc01")
     implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0") // Verifique se a versão é a mais recente
+    implementation("androidx.room:room-runtime:2.5.0")
+    kapt("androidx.room:room-compiler:2.5.0")
+    implementation("androidx.room:room-ktx:2.5.0")
+
 }

@@ -8,25 +8,20 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 
 @Entity
-data class ArticleCache (
-    @PrimaryKey
-    val url : String,
-    val articleJsonString : String
+data class ArticleCache(
+    @PrimaryKey val url: String,
+    val articleJsonString: String
 )
+
 
 @Dao
 interface ArticleCacheDao {
-
     @Query("SELECT * FROM ArticleCache")
-    suspend fun getAll():List<ArticleCache>
+    fun getAll(): List<ArticleCache>
 
-    @Query("SELECT * FROM ArticleCache Where url = :url")
-    suspend fun getByUrl(url : String) : ArticleCache?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(articleCache: ArticleCache)
+    fun insert(articleCache: ArticleCache): Long
 
-    @Query("DELETE FROM ArticleCache Where url = :url")
-    suspend fun delete(url: String)
 
 }

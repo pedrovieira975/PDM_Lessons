@@ -34,19 +34,27 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         val currentDestination = navController.currentBackStackEntry?.destination?.route
                         val searchQuery = remember { mutableStateOf("") }
+
                         when (currentDestination) {
                             "home" -> MyTopBar(
                                 title = "Home",
-                                onSearchQueryChanged = { query -> searchQuery.value = query } // Passando a função para atualizar o estado
+                                isBaseScreen = true,
+                                onSearchQueryChanged = { query ->
+                                    searchQuery.value = query // Atualiza a busca na Home
+                                }
                             )
                             "bookmarks" -> MyTopBar(
                                 title = "Bookmarks",
-                                onSearchQueryChanged = { query -> searchQuery.value = query }
+                                isBaseScreen = true,
+                                onSearchQueryChanged = { query ->
+                                    searchQuery.value = query // Atualiza a busca na Bookmarks
+                                }
                             )
                             else -> MyTopBar(
                                 title = "Article",
                                 isBaseScreen = false,
-                                onSearchQueryChanged = { query -> searchQuery.value = query }
+                                article = null, // Não precisa de busca aqui
+                                onSearchQueryChanged = { }
                             )
                         }
                     },
@@ -54,37 +62,33 @@ class MainActivity : ComponentActivity() {
                         MyBottomBar(navController = navController)
                     }
                 ) { innerPadding ->
-                    // Use innerPadding SOMENTE no Box que envolve a navegação
                     Box(modifier = Modifier.padding(innerPadding)) {
                         NavHost(
                             navController = navController,
                             startDestination = "home"
                         ) {
-                            composable(route = "home") {
+                            composable("home") {
                                 HomeView(
                                     onArticleClick = { url ->
                                         navController.navigate("article/$url")
-                                    },
-                                    allArticles = listOf(/* Insira aqui sua lista de artigos */)
-                                )
-                            }
-                            composable(route = "article/{url}") {
-                                val url = it.arguments?.getString("url")
-                                url?.let {
-                                    ArticleDetailView(url = it)
-                                }
-                            }
-                            composable(route = "bookmarks") {
-                                BookmarksView(
-                                    // Não aplique padding extra aqui
-                                    onArticleClick = {
-                                        navController.navigate("article/${it}")
                                     }
                                 )
+                            }
+                            composable("bookmarks") {
+                                BookmarksView(
+                                    onArticleClick = { url ->
+                                        navController.navigate("article/$url")
+                                    }
+                                )
+                            }
+                            composable("article/{url}") {
+                                val url = it.arguments?.getString("url")
+                                ArticleDetailView(url = url ?: "")
                             }
                         }
                     }
                 }
+
             }
         }
     }
