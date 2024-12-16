@@ -16,12 +16,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.newsapp.Models.Article
 import com.example.newsapp.Models.encodeURL
-import com.example.newsapp.MyTopBar
+//import com.example.newsapp.MyTopBar
 import com.example.newsapp.ui.theme.NewsAppTheme
 
 
@@ -30,30 +31,27 @@ import com.example.newsapp.ui.components.NewsItem
 @Composable
 fun HomeView(
     modifier: Modifier = Modifier,
-    onArticleClick: (String) -> Unit,
-    allArticles: List<Article> // Esta lista deve ser fornecida ao chamar HomeView
+    onArticleClick: (String) -> Unit
 ) {
-    val searchQuery = remember { mutableStateOf("") } // Use `remember` para armazenar o estado corretamente
+    val context = LocalContext.current // Obtém o contexto atual do Composable
+    val viewModel: HomeViewModel = viewModel() // Obtém o ViewModel associado
+    val uiState by viewModel.uiState.collectAsState() // Observa o estado do ViewModel
 
-//    val filteredArticles = allArticles.filter { article ->
-//        if (searchQuery.value.contains("some text", ignoreCase = true)) {
-//            // Realizar a busca ou ação
-//        }
-//    }
-
-    Column(modifier = modifier) {
-        MyTopBar(
-            title = "Home",
-            onSearchQueryChanged = { query -> searchQuery.value = query }  // Passe a função aqui
-        )
-
-        LazyColumn {
-//            itemsIndexed(filteredArticles) { index, article ->  // Verifique aqui
-//                NewsItem(article = article, onClick = { onArticleClick(article.url ?: "") })
-//            }
-        }
+    // Chama fetchArticles uma vez quando o Composable é exibido
+    LaunchedEffect(key1 = true) {
+        viewModel.fetchArticles(context)
     }
+
+    // Exibe o conteúdo da Home
+    HomeViewContent(
+        modifier = modifier,
+        uiState = uiState,
+        onArticleClick = onArticleClick
+    )
 }
+
+
+
 
 
 
