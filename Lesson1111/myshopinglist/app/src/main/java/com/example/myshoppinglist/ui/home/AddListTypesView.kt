@@ -47,9 +47,10 @@ fun AddListTypesView(modifier: Modifier = Modifier,
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = {
-                viewModel.addList()
-                // todo : back
-                navController.popBackStack()
+                if (!viewModel.state.value.isLoading) {
+                    viewModel.addList()
+                    navController.popBackStack()
+                }
             }) {
                 Text(text = "Add")
             }

@@ -33,52 +33,54 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun ListTypesView(
     modifier: Modifier = Modifier,
-    onNavigateToAddList : ()->Unit,
-    onNavigateToEachListType : ()->Unit,
-    onLogoutSucess : ()->Unit
-){
-
-    val viewModel by remember { mutableStateOf(ListTypesViewModel()) }
+    onNavigateToAddList: () -> Unit,
+    onNavigateToEachListType: (String) -> Unit, // Callback ajustado para aceitar um argumento
+    onLogoutSucess: () -> Unit
+) {
+    val viewModel: ListTypesViewModel = viewModel()
     val state = viewModel.state
 
     ListTypesViewContent(
         modifier = modifier,
         state = state.value,
         onNavigateToAddList = onNavigateToAddList,
-        onNavigateToEachListType = onNavigateToEachListType,
-        onLogoutSucess = onLogoutSucess)
+        onNavigateToEachListType = onNavigateToEachListType, // Passando o callback ajustado
+        onLogoutSucess = onLogoutSucess
+    )
 
-    LaunchedEffect (key1 = Unit){
+    LaunchedEffect(Unit) {
         viewModel.loadListTypes()
     }
 }
+
 @Composable
 fun ListTypesViewContent(
     modifier: Modifier = Modifier,
     state: ListState,
-    onNavigateToAddList : ()->Unit = {},
-    onNavigateToEachListType : ()->Unit = {},
-    onLogoutSucess : ()->Unit = {}
-){
-
-    Box(modifier = modifier.fillMaxSize(),
+    onNavigateToAddList: () -> Unit = {},
+    onNavigateToEachListType: (String) -> Unit = {}, // Callback ajustado
+    onLogoutSucess: () -> Unit = {}
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomEnd
-    ){
-        Column(modifier = Modifier.fillMaxSize(),
-            ) {
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             LazyColumn {
                 itemsIndexed(
                     items = state.listItems
-                ) { index, item ->
+                ) { _, item ->
                     ListTypeRowView(
                         listItem = item,
-                        modifier = modifier.clickable {
-                            onNavigateToEachListType()
-                        })
+                        modifier = Modifier.clickable {
+                            onNavigateToEachListType(item.docId ?: "") // Passando o docId
+                        }
+                    )
                 }
             }
         }
@@ -86,40 +88,33 @@ fun ListTypesViewContent(
             modifier = Modifier
                 .padding(16.dp)
                 .height(80.dp)
-                .width(80.dp)
-            ,
-            onClick = {
-                onNavigateToAddList()
-            }) {
-            Image(
-                modifier = Modifier
-                    .size(60.dp),
+                .width(80.dp),
+            onClick = { onNavigateToAddList() }
+        ) {
+            Icon(
                 painter = painterResource(R.drawable.baseline_add_24),
-                contentDescription = "add list",
-                colorFilter = ColorFilter.tint(Color.White))
+                contentDescription = "Adicionar Lista",
+                tint = Color.White
+            )
         }
+
         Button(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(16.dp)
                 .height(80.dp)
-                .width(80.dp)
-            ,
-            onClick = {
-                onLogoutSucess()
-            }) {
-            Image(
-                modifier = Modifier
-                    .size(60.dp),
+                .width(80.dp),
+            onClick = { onLogoutSucess() }
+        ) {
+            Icon(
                 painter = painterResource(R.drawable.baseline_logout_24),
-                contentDescription = "logout",
-                colorFilter = ColorFilter.tint(Color.White)
+                contentDescription = "Logout",
+                tint = Color.White
             )
         }
-
     }
-
 }
+
 
 
 

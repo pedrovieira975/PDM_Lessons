@@ -14,40 +14,70 @@ object ListItemRepository {
     val db = Firebase.firestore
 
     fun add(listItem: ListItem, onAddListSuccess: () -> Unit) {
-
-
-        var currentUser = Firebase.auth.currentUser
-
-        //if (currentUser == null) {
-        //    state.value = state.value.copy(error = "User not logged in")
-        //    return
-        //}
-
-        currentUser?.uid?.let {
-            listItem.owners = arrayListOf(it)
+        Log.d(TAG, "Adicionando item: ${listItem.name}")
+        val currentUser = Firebase.auth.currentUser
+        if (currentUser == null) {
+            Log.w(TAG, "Usuário não autenticado. Não é possível adicionar a lista.")
+            return
         }
+
+        listItem.owners = listOf(currentUser.uid)
 
         db.collection("listTypes")
             .add(listItem)
             .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                Log.d(TAG, "Documento adicionado com ID: ${documentReference.id}")
+                onAddListSuccess()
             }
             .addOnFailureListener { e ->
-                Log.w(TAG, "Error adding document", e)
+                Log.w(TAG, "Erro ao adicionar documento", e)
             }
-
     }
 
-    fun getAll(onSuccess: (List<ListItem>) -> Unit){
+
+
+
+    fun getAll(onSuccess: (List<ListItem>) -> Unit) {
+        val userId = Firebase.auth.currentUser?.uid
+        if (userId == null) {
+            Log.w(TAG, "Usuário não autenticado. Não é possível carregar as listas.")
+            return
+        }
+
+        Log.d(TAG, "Buscando listas para o usuário: $userId")
+
         db.collection("listTypes")
-            .whereArrayContains("owners", Firebase.auth.currentUser?.uid!!)
+            .whereArrayContains("owners", userId)
             .addSnapshotListener { value, error ->
+                if (error != null) {
+                    Log.e(TAG, "Erro ao carregar listas: ${error.message}", error)
+                    return@addSnapshotListener
+                }
+
                 val listItems = value?.documents?.mapNotNull {
-                    val itemList  = it.toObject(ListItem::class.java)
+                    val itemList = it.toObject(ListItem::class.java)
                     itemList?.docId = it.id
                     itemList
                 }
-                listItems?.let {  onSuccess(it) }
+
+                Log.d(TAG, "Listas carregadas: ${listItems?.size ?: 0}")
+                listItems?.let { onSuccess(it) }
+            }
+    }
+
+    fun getItemById(docId: String, onSuccess: (ListItem?) -> Unit) {
+        db.collection("listTypes")
+            .document(docId)
+            .get()
+            .addOnSuccessListener { document ->
+                val listItem = document.toObject(ListItem::class.java)?.apply {
+                    this.docId = document.id
+                }
+                onSuccess(listItem)
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Erro ao buscar o item: ${e.message}", e)
+                onSuccess(null)
             }
     }
 
