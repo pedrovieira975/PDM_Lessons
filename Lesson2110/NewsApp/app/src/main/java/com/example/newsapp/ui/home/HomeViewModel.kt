@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.newsapp.AppDatabase
 import com.example.newsapp.Models.Article
+import com.example.newsapp.Models.ArticleCache
+import com.example.newsapp.Models.toJsonString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,11 +21,13 @@ import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.util.UUID
 
 data class ArticleState (
     val articles : ArrayList<Article> = arrayListOf<Article>(),
     val isLoading  : Boolean = false,
     val errorMessage: String = "",
+    val searchQuery: String = ""
 )
 
 class HomeViewModel : ViewModel() {
@@ -83,6 +87,7 @@ class HomeViewModel : ViewModel() {
                         isLoading = false,
                         errorMessage = "Erro ao carregar da API. Mostrando dados em cache."
                     )
+
                 }
             } catch (e: IOException) {
                 Log.e("HomeViewModel", "Erro de rede: ${e.message}", e)
@@ -98,6 +103,127 @@ class HomeViewModel : ViewModel() {
                     articles = arrayListOf(),
                     isLoading = false,
                     errorMessage = "Ocorreu um erro inesperado: ${e.message}"
+                )
+            }
+        }
+    }
+    fun saveArticleToBookmarks(context: Context, article: Article) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (article.url.isNullOrBlank()) {
+                Log.e("SaveArticle", "Erro: URL do artigo é nula ou vazia.")
+                return@launch
+            }
+
+            val database = AppDatabase.getDatabase(context)
+            val existing = database?.articleCacheDao()?.getAll()?.any { it.url == article.url } ?: false
+
+            if (!existing) {
+                val articleCache = ArticleCache(
+                    url = article.url, // URL já validada
+                    articleJsonString = article.toJsonString()
+                )
+                val result = database?.articleCacheDao()?.insert(articleCache)
+                Log.d("SaveArticle", "Artigo salvo com sucesso: URL=${article.url}, Resultado=$result")
+            } else {
+                Log.d("SaveArticle", "Artigo já existe no banco: URL=${article.url}")
+            }
+            logAllBookmarks(context) // Loga os artigos salvos no banco
+        }
+    }
+
+
+    fun loadBookmarks(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val articlesCache = AppDatabase.getDatabase(context)?.articleCacheDao()?.getAll()
+            if (articlesCache.isNullOrEmpty()) {
+                Log.d("BookmarksLoad", "Nenhum artigo encontrado no banco.")
+            } else {
+                articlesCache.forEach {
+                    Log.d("BookmarksLoad", "Artigo carregado do banco: URL=${it.url}, JSON=${it.articleJsonString}")
+                }
+            }
+
+            val bookmarks = articlesCache?.map {
+                Article.fromJson(JSONObject(it.articleJsonString))
+            } ?: emptyList()
+
+            Log.d("BookmarksLoad", "Total de artigos carregados: ${bookmarks.size}")
+
+            viewModelScope.launch(Dispatchers.Main) {
+                _uiState.value = _uiState.value.copy(articles = ArrayList(bookmarks))
+            }
+        }
+    }
+
+    private val _bookmarkedArticles = MutableStateFlow<List<String>>(emptyList())
+    val bookmarkedArticles: StateFlow<List<String>> = _bookmarkedArticles.asStateFlow()
+
+    fun refreshBookmarkedArticles(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val articlesCache = AppDatabase.getDatabase(context)?.articleCacheDao()?.getAll()
+            val bookmarkedUrls = articlesCache?.map { it.url } ?: emptyList()
+            _bookmarkedArticles.value = bookmarkedUrls
+        }
+    }
+
+    fun logAllBookmarks(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val articlesCache = AppDatabase.getDatabase(context)?.articleCacheDao()?.getAll()
+            articlesCache?.forEach { cachedArticle ->
+                Log.d("BookmarksCheck", "Artigo no banco: URL=${cachedArticle.url}, JSON=${cachedArticle.articleJsonString}")
+            }
+            Log.d("BookmarksCheck", "Total de favoritos no banco: ${articlesCache?.size ?: 0}")
+        }
+    }
+
+    fun testDatabase(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val database = AppDatabase.getDatabase(context)
+            val articles = database?.articleCacheDao()?.getAll()
+            articles?.forEach {
+                Log.d("DatabaseTest", "Artigo salvo: URL=${it.url}, JSON=${it.articleJsonString}")
+            }
+            Log.d("DatabaseTest", "Total de artigos no banco: ${articles?.size ?: 0}")
+        }
+    }
+
+    fun testGetAllArticles(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val articles = AppDatabase.getDatabase(context)?.articleCacheDao()?.getAll()
+            articles?.forEach {
+                Log.d("DAOTest", "Artigo no banco: URL=${it.url}, JSON=${it.articleJsonString}")
+            }
+            Log.d("DAOTest", "Total de artigos no banco: ${articles?.size ?: 0}")
+        }
+    }
+
+    fun testInsertFixedArticle(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val articleCache = ArticleCache(
+                url = "https://teste.com/favorito",
+                articleJsonString = """{"title": "Artigo Teste", "description": "Descrição Teste"}"""
+            )
+            val result = AppDatabase.getDatabase(context).articleCacheDao().insert(articleCache)
+            Log.d("TestInsert", "Artigo inserido com resultado: $result")
+            logAllBookmarks(context) // Loga todos os artigos salvos
+        }
+    }
+
+    fun getArticles(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val articlesCache = AppDatabase
+                .getDatabase(context)
+                ?.articleCacheDao()
+                ?.getAll()
+
+            val articles: List<Article> = articlesCache?.map {
+                Article.fromJson(JSONObject(it.articleJsonString))
+            } ?: emptyList()
+
+            viewModelScope.launch(Dispatchers.Main) {
+                _uiState.value = ArticleState(
+                    articles = ArrayList(articles),
+                    isLoading = false
                 )
             }
         }

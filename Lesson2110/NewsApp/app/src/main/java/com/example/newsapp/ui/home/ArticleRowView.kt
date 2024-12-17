@@ -19,9 +19,24 @@ import androidx.compose.ui.layout.ContentScale
 import com.example.newsapp.R
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.TimeZone
 
 @Composable
 fun ArticleRowView(modifier: Modifier = Modifier, article: Article) {
+    val formattedDate = article.publishedAt?.let {
+        // Converte a String ISO-8601 para um formato mais legível
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US)
+        inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+        val outputFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+
+        try {
+            val date = inputFormat.parse(it)
+            date?.let { outputFormat.format(it) }
+        } catch (e: Exception) {
+            "Data inválida"
+        }
+    } ?: "Data indisponível"
+
     Row(modifier = modifier) {
         article.urlToImage?.let {
             AsyncImage(
@@ -65,26 +80,26 @@ fun ArticleRowView(modifier: Modifier = Modifier, article: Article) {
             }
             Text(
                 modifier = Modifier.padding(top = 8.dp),
-                text = article.publishedAt?.toString() ?: "Data indisponível"
+                text = formattedDate
             )
         }
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun ArticleRowViewPreview() {
-    val mockDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US)
-        .parse("2024-12-08T16:17:05+00:00")
+    val mockDate = "2024-12-08T16:17:05+00:00" // Representação como String no formato ISO-8601
 
     val article = Article(
         title = "Título de Exemplo",
         description = "Descrição do artigo de exemplo.",
         url = "https://www.example.com",
         urlToImage = null,
-        publishedAt = mockDate,
+        publishedAt = mockDate, // Agora como String
         author = "Autor Exemplo",
-        content = "Conteúdo do artigo de exemplo." // Pass author value here
+        content = "Conteúdo do artigo de exemplo."
     )
 
     ArticleRowView(article = article)

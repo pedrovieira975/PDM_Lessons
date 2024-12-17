@@ -23,5 +23,4 @@ interface ArticleCacheDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(articleCache: ArticleCache): Long
 
-
 }
