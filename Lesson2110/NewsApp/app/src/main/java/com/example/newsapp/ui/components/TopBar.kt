@@ -1,5 +1,7 @@
 package com.example.newsapp
 
+import android.util.Log
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Modifier
 import com.example.newsapp.Models.toJsonString
@@ -7,6 +9,7 @@ import com.example.newsapp.Models.toJsonString
 //package com.example.newsapp
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 //import androidx.compose.material3.*
@@ -22,6 +25,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import androidx.compose.material3.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.newsapp.ui.home.HomeViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,51 +35,36 @@ fun MyTopBar(
     title: String,
     isBaseScreen: Boolean = true,
     article: Article? = null,
-    onSearchQueryChanged: (String) -> Unit // Função que será chamada ao alterar o texto da pesquisa
+    onSearchQueryChanged: (String) -> Unit
 ) {
     val context = LocalContext.current
+    val viewModel: HomeViewModel = viewModel()
     var searchText by remember { mutableStateOf("") }
+    val bookmarkedArticles by viewModel.bookmarkedArticles.collectAsState()
 
     TopAppBar(
         title = {
-            if (article != null) {
-                Text(text = article.title ?: "")
-            } else {
-                TextField(
-                    value = searchText,
-                    onValueChange = { newText ->
-                        searchText = newText
-                        onSearchQueryChanged(newText) // Chama a função que foi passada
-                    },
-                    label = { Text("Search News") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-//                    colors = TextFieldDefaults.textFieldColors(
-//                        containerColor = Color.Transparent
-//                    )
-                )
-            }
+            TextField(
+                value = searchText,
+                onValueChange = { newText ->
+                    searchText = newText
+                    onSearchQueryChanged(newText)
+                },
+                label = { Text("Search News") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
         },
         actions = {
-            if (!isBaseScreen) {
+            if (article != null) {
+                val isBookmarked = article.url in bookmarkedArticles
                 IconButton(
                     onClick = {
-                        article?.let {
-                            val articleCache = ArticleCache(
-                                it.url!!,
-                                it.toJsonString()
-                            )
-                            GlobalScope.launch(Dispatchers.IO) {
-                                AppDatabase
-                                    .getDatabase(context)
-                                    ?.articleCacheDao()
-                                    ?.insert(articleCache)
-                            }
-                        }
+                        viewModel.saveArticleToBookmarks(context, article)
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.FavoriteBorder,
+                        imageVector = if (isBookmarked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = "Bookmark"
                     )
                 }
@@ -82,7 +72,6 @@ fun MyTopBar(
         }
     )
 }
-
 
 
 @Preview(showBackground = true)

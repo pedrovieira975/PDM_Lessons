@@ -43,28 +43,31 @@ data class Article(
     val description: String?,
     val url: String?,
     val urlToImage: String?,
-    val publishedAt: Date?,
-    val author: String?, // Novo campo para o autor
+    val publishedAt: String?, // Armazena como String
+    val author: String?,
     val content: String?
-) {
+)
 
-    companion object {
-        fun fromJson(articleObject: JSONObject): Article {
-            val title = articleObject.optString("titulo")
-            val description = articleObject.optString("descricao")
-            val url = articleObject.optString("url")
-            val urlToImage = articleObject.optString("multimediaPrincipal")
-            val publishedAt = articleObject.optString("data").takeIf { it.isNotEmpty() }?.toDate()
+ {
 
-            // Extraindo o nome do autor, caso exista
-            val authorsArray = articleObject.optJSONArray("autores")
-            val author = if (authorsArray != null && authorsArray.length() > 0) {
-                authorsArray.getJSONObject(0).optString("nome")
-            } else {
-                null
-            }
+     companion object {
+         fun fromJson(articleObject: JSONObject): Article {
+             val title = articleObject.optString("titulo")
+             val description = articleObject.optString("descricao")
+             val url = articleObject.optString("url")
+             val urlToImage = articleObject.optString("multimediaPrincipal")
+             val publishedAt = articleObject.optString("data").takeIf { it.isNotEmpty() } // Deixa como String
 
-            return Article(title, description, url, urlToImage, publishedAt, author, null)
-        }
-    }
-}
+             // Extraindo o nome do autor, caso exista
+             val authorsArray = articleObject.optJSONArray("autores")
+             val author = if (authorsArray != null && authorsArray.length() > 0) {
+                 authorsArray.getJSONObject(0).optString("nome")
+             } else {
+                 null
+             }
+
+             return Article(title, description, url, urlToImage, publishedAt, author, null)
+         }
+     }
+
+ }

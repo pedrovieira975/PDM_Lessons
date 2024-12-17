@@ -50,11 +50,6 @@ fun HomeView(
     )
 }
 
-
-
-
-
-
 @Composable
 fun HomeViewContent(
     modifier: Modifier = Modifier,

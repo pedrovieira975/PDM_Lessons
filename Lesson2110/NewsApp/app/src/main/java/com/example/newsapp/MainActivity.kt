@@ -25,38 +25,24 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // Certifique-se de configurar corretamente
+        enableEdgeToEdge()
         setContent {
             NewsAppTheme {
                 val navController = rememberNavController()
+                val searchQuery = remember { mutableStateOf("") }
+                val currentArticle = remember { mutableStateOf<Article?>(null) }
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
-                        val currentDestination = navController.currentBackStackEntry?.destination?.route
-                        val searchQuery = remember { mutableStateOf("") }
-
-                        when (currentDestination) {
-                            "home" -> MyTopBar(
-                                title = "Home",
-                                isBaseScreen = true,
-                                onSearchQueryChanged = { query ->
-                                    searchQuery.value = query // Atualiza a busca na Home
-                                }
-                            )
-                            "bookmarks" -> MyTopBar(
-                                title = "Bookmarks",
-                                isBaseScreen = true,
-                                onSearchQueryChanged = { query ->
-                                    searchQuery.value = query // Atualiza a busca na Bookmarks
-                                }
-                            )
-                            else -> MyTopBar(
-                                title = "Article",
-                                isBaseScreen = false,
-                                article = null, // Não precisa de busca aqui
-                                onSearchQueryChanged = { }
-                            )
-                        }
+                        MyTopBar(
+                            title = "NewsApp",
+                            isBaseScreen = currentArticle.value == null, // Se tiver artigo, não é base
+                            article = currentArticle.value, // Usa .value para acessar o valor
+                            onSearchQueryChanged = { query ->
+                                searchQuery.value = query
+                            }
+                        )
                     },
                     bottomBar = {
                         MyBottomBar(navController = navController)
@@ -68,6 +54,7 @@ class MainActivity : ComponentActivity() {
                             startDestination = "home"
                         ) {
                             composable("home") {
+                                currentArticle.value = null // Define como tela base
                                 HomeView(
                                     onArticleClick = { url ->
                                         navController.navigate("article/$url")
@@ -75,21 +62,33 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable("bookmarks") {
+                                currentArticle.value = null // Define como tela base
                                 BookmarksView(
                                     onArticleClick = { url ->
                                         navController.navigate("article/$url")
                                     }
                                 )
                             }
-                            composable("article/{url}") {
-                                val url = it.arguments?.getString("url")
-                                ArticleDetailView(url = url ?: "")
+                            composable("article/{url}") { backStackEntry ->
+                                val url = backStackEntry.arguments?.getString("url")
+                                currentArticle.value = Article(
+                                    title = "Exemplo de Artigo",
+                                    description = "Descrição do artigo",
+                                    url = url,
+                                    urlToImage = null,
+                                    publishedAt = null,
+                                    author = "Autor Exemplo",
+                                    content = "Conteúdo do artigo"
+                                )
+
+                                ArticleDetailView(url = currentArticle.value?.url ?: "")
                             }
                         }
                     }
                 }
-
             }
         }
     }
 }
+
+
