@@ -34,8 +34,26 @@ object ListItemRepository {
             }
     }
 
+    fun remove(docId: String, onRemoveSuccess: () -> Unit, onRemoveFailure: (Exception) -> Unit) {
+        Log.d(TAG, "Removendo item com ID: $docId")
+        val currentUser = Firebase.auth.currentUser
+        if (currentUser == null) {
+            Log.w(TAG, "Usuário não autenticado. Não é possível remover o item.")
+            return
+        }
 
-
+        db.collection("listTypes")
+            .document(docId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "Item removido com sucesso.")
+                onRemoveSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Erro ao remover o item", e)
+                onRemoveFailure(e)
+            }
+    }
 
     fun getAll(onSuccess: (List<ListItem>) -> Unit) {
         val userId = Firebase.auth.currentUser?.uid

@@ -47,4 +47,15 @@ class ListTypesViewModel : ViewModel() {
         return item
     }
 
+    fun remove(docId: String, onRemoveSuccess: () -> Unit, onRemoveFailure: (Exception) -> Unit) {
+        ListItemRepository.getItemById(docId) { listItem ->
+            if (listItem != null) {
+                // Chamando a função remove que foi definida anteriormente
+                remove(docId, onRemoveSuccess, onRemoveFailure)
+            } else {
+                Log.w("RemoveListItem", "Item com ID $docId não encontrado.")
+                onRemoveFailure(Exception("Item não encontrado"))
+            }
+        }
+    }
 }

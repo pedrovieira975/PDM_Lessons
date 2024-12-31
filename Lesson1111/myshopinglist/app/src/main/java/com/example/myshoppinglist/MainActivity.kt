@@ -69,21 +69,22 @@ class MainActivity : ComponentActivity() {
                         composable(
                             route = "${Screen.EachListType.route}/{docId}",
                             arguments = listOf(navArgument("docId") { type = NavType.StringType })
-                        ) { backStackEntry ->
-                            val docId = backStackEntry.arguments?.getString("docId")
-                            val viewModel: ListTypesViewModel = viewModel()
-                            val listItem = docId?.let { viewModel.getListItemById(it) }
-
-                            if (listItem != null) {
-                                ItemDetailView(
-                                    listItem = listItem,
-                                    onCheckedChange = { isChecked ->
-                                        // Atualize o estado ou execute outra ação ao marcar/desmarcar
-                                    }
-                                )
-                            } else {
-                                Text(text = "Item não encontrado")
-                            }
+                        ) {
+//                            backStackEntry ->
+//                            val docId = backStackEntry.arguments?.getString("docId")
+//                            val viewModel: ListTypesViewModel = viewModel()
+//                            val listItem = docId?.let { viewModel.getListItemById(it) }
+//
+//                            if (listItem != null) {
+//                                ItemDetailView(
+//                                    listItem = listItem,
+//                                    onCheckedChange = { isChecked ->
+//                                        // Atualize o estado ou execute outra ação ao marcar/desmarcar
+//                                    }
+//                                )
+//                            } else {
+//                                Text(text = "Item não encontrado")
+//                            }
                         }
                     }
                 }
