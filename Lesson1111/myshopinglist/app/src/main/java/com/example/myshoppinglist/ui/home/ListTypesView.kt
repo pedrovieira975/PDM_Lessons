@@ -78,7 +78,12 @@ fun ListTypesViewContent(
                     ListTypeRowView(
                         listItem = item,
                         modifier = Modifier.clickable {
-                            onNavigateToEachListType(item.docId ?: "") // Passando o docId
+                            if (!item.docId.isNullOrEmpty()) {
+                                onNavigateToEachListType(item.docId!!)
+                            } else {
+                                // Log de erro ou mensagem para o usuário
+                                println("Erro: docId está nulo ou vazio")
+                            }
                         }
                     )
                 }

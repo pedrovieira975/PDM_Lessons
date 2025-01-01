@@ -66,22 +66,22 @@ fun ItemDetailView(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(8.dp)) // Espaço entre a lista e o botão
-        Button(
-            modifier = Modifier
-                .align(Alignment.End)
-                .width(70.dp)
-                .height(56.dp),
-            onClick = { /* Adicionar funcionalidade aqui */ }
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.baseline_add_24),
-                contentDescription = "Adicionar Lista",
-                tint = Color.White
-            )
-//            Spacer(modifier = Modifier.width(8.dp))
-//            Text(text = "Adicionar Lista")
-        }
+//        Spacer(modifier = Modifier.height(8.dp)) // Espaço entre a lista e o botão
+//        Button(
+//            modifier = Modifier
+//                .align(Alignment.End)
+//                .width(70.dp)
+//                .height(56.dp),
+//            onClick = { /* Adicionar funcionalidade aqui */ }
+//        ) {
+//            Icon(
+//                painter = painterResource(R.drawable.baseline_add_24),
+//                contentDescription = "Adicionar Lista",
+//                tint = Color.White
+//            )
+////            Spacer(modifier = Modifier.width(8.dp))
+////            Text(text = "Adicionar Lista")
+//        }
     }
 }
 

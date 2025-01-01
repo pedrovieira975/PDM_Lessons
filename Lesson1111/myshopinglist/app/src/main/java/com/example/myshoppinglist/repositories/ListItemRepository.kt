@@ -2,6 +2,7 @@ package com.example.myshoppinglist.repositories
 
 import android.util.Log
 import com.example.myshoppinglist.TAG
+import com.example.myshoppinglist.models.Article
 import com.example.myshoppinglist.models.ListItem
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -98,5 +99,70 @@ object ListItemRepository {
                 onSuccess(null)
             }
     }
+
+    fun addArticleToList(
+        docId: String,
+        article: Article,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        db.collection("listTypes")
+            .document(docId) // Adicionar o artigo à coleção da lista
+            .collection("articles")
+            .add(article)
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+
+
+    fun getArticlesForList(docId: String, onResult: (List<Article>) -> Unit) {
+        val db = Firebase.firestore
+        db.collection("listTypes")
+            .document(docId)
+            .collection("articles") // Subcoleção "articles"
+            .get()
+            .addOnSuccessListener { result ->
+                val articles = result.map { document ->
+                    document.toObject(Article::class.java)
+                }
+                onResult(articles)
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Erro ao buscar artigos: ${exception.message}", exception)
+            }
+    }
+
+
+
+    fun checkItem(docId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val articleId = "article_doc_id"
+
+        db.collection("articles").document(articleId)
+            .update("completed", true)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Artigo atualizado para concluído")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Erro ao atualizar artigo", e)
+            }
+    }
+
+    fun updateArticle(articleId: String, completed: Boolean) {
+        db.collection("articles").document(articleId)
+            .update("completed", completed)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Artigo marcado como concluído")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Erro ao marcar artigo", e)
+            }
+    }
+
+
 
 }
