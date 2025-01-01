@@ -23,6 +23,7 @@ import com.google.firebase.ktx.Firebase
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.myshoppinglist.ui.home.AddArticleView
 import com.example.myshoppinglist.ui.home.ItemDetailView
 import com.example.myshoppinglist.ui.home.ListTypesViewModel
 
@@ -67,24 +68,26 @@ class MainActivity : ComponentActivity() {
                             AddListTypesView(navController = navController)
                         }
                         composable(
-                            route = "${Screen.EachListType.route}/{docId}",
+                            route = "each_list_type/{docId}",
                             arguments = listOf(navArgument("docId") { type = NavType.StringType })
-                        ) {
-//                            backStackEntry ->
-//                            val docId = backStackEntry.arguments?.getString("docId")
-//                            val viewModel: ListTypesViewModel = viewModel()
-//                            val listItem = docId?.let { viewModel.getListItemById(it) }
-//
-//                            if (listItem != null) {
-//                                ItemDetailView(
-//                                    listItem = listItem,
-//                                    onCheckedChange = { isChecked ->
-//                                        // Atualize o estado ou execute outra ação ao marcar/desmarcar
-//                                    }
-//                                )
-//                            } else {
-//                                Text(text = "Item não encontrado")
-//                            }
+                        ) { backStackEntry ->
+                            val docId = backStackEntry.arguments?.getString("docId")
+                            if (docId != null) {
+                                EachListTypeView(docId = docId, navController = navController)
+                            } else {
+                                Text("Erro: docId não encontrado!")
+                            }
+                        }
+                        composable(
+                            route = "add_article/{docId}",
+                            arguments = listOf(navArgument("docId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val docId = backStackEntry.arguments?.getString("docId")
+                            if (docId != null) {
+                                AddArticleView(docId = docId, navController = navController)
+                            } else {
+                                Text("Erro: docId não encontrado!")
+                            }
                         }
                     }
                 }
