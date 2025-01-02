@@ -1,10 +1,14 @@
 package com.example.myshoppinglist.repositories
 
 import android.util.Log
+import android.util.Patterns
 import com.example.myshoppinglist.TAG
 import com.example.myshoppinglist.models.Article
 import com.example.myshoppinglist.models.ListItem
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -118,8 +122,6 @@ object ListItemRepository {
             }
     }
 
-
-
     fun getArticlesForList(docId: String, onResult: (List<Article>) -> Unit) {
         val db = Firebase.firestore
         db.collection("listTypes")
@@ -129,6 +131,9 @@ object ListItemRepository {
             .addOnSuccessListener { result ->
                 val articles = result.map { document ->
                     document.toObject(Article::class.java)
+                        .apply {
+                            articleId = document.id
+                        }
                 }
                 onResult(articles)
             }
@@ -137,32 +142,54 @@ object ListItemRepository {
             }
     }
 
+    fun updateArticleCompletionStatus(
+        articleId: String,
+        docId: String,
+        completed: Boolean,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val db = Firebase.firestore
 
+        // Verifica se o docId e articleId não estão vazios
+        if (docId.isEmpty() || articleId.isEmpty()) {
+            onFailure(IllegalArgumentException("docId ou articleId não podem ser vazios"))
+            return
+        }
 
-    fun checkItem(docId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val articleId = "article_doc_id"
+        // Caminho completo para o artigo na subcoleção `articles`
+        val documentReference = db
+            .collection("listTypes")
+            .document(docId)
+            .collection("articles")
+            .document(articleId)
 
-        db.collection("articles").document(articleId)
-            .update("completed", true)
+        // Atualiza o campo `completed`
+        documentReference.update("completed", completed)
             .addOnSuccessListener {
-                Log.d("Firestore", "Artigo atualizado para concluído")
+                onSuccess()
             }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Erro ao atualizar artigo", e)
+            .addOnFailureListener { exception ->
+                onFailure(exception)
             }
     }
 
-    fun updateArticle(articleId: String, completed: Boolean) {
-        db.collection("articles").document(articleId)
-            .update("completed", completed)
+    fun addOwnerToList(
+        docId: String,
+        uid: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        Firebase.firestore.collection("listTypes")
+            .document(docId)
+            .update("owners", FieldValue.arrayUnion(uid)) // Adiciona o UID ao array de owners
             .addOnSuccessListener {
-                Log.d("Firestore", "Artigo marcado como concluído")
+                Log.d(TAG, "UID $uid associado à lista $docId com sucesso.")
+                onSuccess()
             }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Erro ao marcar artigo", e)
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Erro ao associar UID à lista: ${exception.message}", exception)
+                onFailure(exception)
             }
     }
-
-
-
 }

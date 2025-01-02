@@ -9,13 +9,13 @@ data class ListItem(
 }
 
 data class Article(
-    var articleId: String?,
+    var articleId: String,
     var name: String,
     var description: String,
     var completed: Boolean = false,
     var docId: String? = null,
     ) {
-    constructor():this(null, "", "", false, null){}
+    constructor():this("", "", "", false, null){}
 }
 
 data class ListState(
