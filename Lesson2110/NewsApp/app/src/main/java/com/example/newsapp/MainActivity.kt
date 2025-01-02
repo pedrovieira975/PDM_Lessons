@@ -71,17 +71,24 @@ class MainActivity : ComponentActivity() {
                             }
                             composable("article/{url}") { backStackEntry ->
                                 val url = backStackEntry.arguments?.getString("url")
+                                val title = backStackEntry.arguments?.getString("title")
+                                val description = backStackEntry.arguments?.getString("description")
+                                val urlToImage = backStackEntry.arguments?.getString("urlToImage")
+                                val publishedAt = backStackEntry.arguments?.getString("publishedAt")
+                                val author = backStackEntry.arguments?.getString("author")
+                                val content = backStackEntry.arguments?.getString("content")
                                 currentArticle.value = Article(
-                                    title = "Exemplo de Artigo",
-                                    description = "Descrição do artigo",
+                                    title = title,
+                                    description = description,
                                     url = url,
-                                    urlToImage = null,
-                                    publishedAt = null,
-                                    author = "Autor Exemplo",
-                                    content = "Conteúdo do artigo"
+                                    urlToImage = urlToImage,
+                                    publishedAt = publishedAt,
+                                    author = author,
+                                    content = content
                                 )
 
                                 ArticleDetailView(url = currentArticle.value?.url ?: "")
+
                             }
                         }
                     }
