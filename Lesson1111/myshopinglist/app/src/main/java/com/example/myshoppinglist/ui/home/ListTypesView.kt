@@ -1,5 +1,6 @@
 package com.example.myshoppinglist.ui.home
 
+import androidx.compose.animation.VectorConverter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -30,10 +31,13 @@ import com.example.myshoppinglist.models.ListItem
 import com.example.myshoppinglist.ui.theme.MyShoppingListTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myshoppinglist.ui.theme.Green01
+
 
 @Composable
 fun ListTypesView(
@@ -94,7 +98,10 @@ fun ListTypesViewContent(
                 .padding(16.dp)
                 .height(80.dp)
                 .width(80.dp),
-            onClick = { onNavigateToAddList() }
+            onClick = { onNavigateToAddList() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Green01
+            )
         ) {
             Icon(
                 painter = painterResource(R.drawable.baseline_add_24),
@@ -109,7 +116,10 @@ fun ListTypesViewContent(
                 .padding(16.dp)
                 .height(80.dp)
                 .width(80.dp),
-            onClick = { onLogoutSucess() }
+            onClick = { onLogoutSucess() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Gray,
+            ),
         ) {
             Icon(
                 painter = painterResource(R.drawable.baseline_logout_24),

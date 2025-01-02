@@ -22,9 +22,27 @@ class EachListTypeViewModel : ViewModel() {
 
     fun loadArticlesForList(docId: String) {
         ListItemRepository.getArticlesForList(docId) { articles ->
-            _articles.value = articles // Atualiza o estado com os artigos retornados
+            if (_articles.value.isEmpty()) {
+                // Apenas sobrescreve o estado inicial
+                _articles.value = articles
+            }
         }
     }
+
+    fun updateArticles(updatedArticles: List<Article>) {
+        _articles.value = updatedArticles
+    }
+
+    fun updateSingleArticle(updatedArticle: Article) {
+        val currentArticles = _articles.value.toMutableList()
+        val index = currentArticles.indexOfFirst { it.articleId == updatedArticle.articleId }
+        if (index != -1) {
+            currentArticles[index] = updatedArticle
+            _articles.value = currentArticles
+            Log.d(TAG, "Estado local do artigo ${updatedArticle.name} atualizado")
+        }
+    }
+
 }
 
 

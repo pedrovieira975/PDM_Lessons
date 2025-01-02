@@ -26,6 +26,7 @@ import androidx.navigation.navArgument
 import com.example.myshoppinglist.ui.home.AddArticleView
 import com.example.myshoppinglist.ui.home.ItemDetailView
 import com.example.myshoppinglist.ui.home.ListTypesViewModel
+import com.example.myshoppinglist.ui.home.ShareListView
 
 const val TAG = "myshoppinglist"
 
@@ -89,6 +90,18 @@ class MainActivity : ComponentActivity() {
                                 Text("Erro: docId não encontrado!")
                             }
                         }
+                        composable(
+                            route = "share_list/{docId}",
+                            arguments = listOf(navArgument("docId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val docId = backStackEntry.arguments?.getString("docId")
+                            if (docId != null) {
+                                ShareListView(navController = navController, docId = docId)
+                            } else {
+                                Text("Erro: docId não encontrado!")
+                            }
+                        }
+
                     }
                 }
             }

@@ -201,7 +201,9 @@
 //}
 package com.example.myshoppinglist.ui.home
 
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
@@ -218,6 +220,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -230,6 +233,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -238,11 +242,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.myshoppinglist.R
+import com.example.myshoppinglist.TAG
 import com.example.myshoppinglist.models.Article
 import com.example.myshoppinglist.models.ListItem
 import com.example.myshoppinglist.repositories.ListItemRepository
 import com.example.myshoppinglist.ui.theme.MyShoppingListTheme
 import com.example.myshoppinglist.models.ListState
+import com.example.myshoppinglist.ui.theme.Green01
+import com.example.myshoppinglist.ui.theme.appFontBold16
 
 
 @Composable
@@ -261,8 +268,12 @@ fun EachListTypeView(
     EachListTypeViewContent(
         state = ListState(articles = state),
         docId = docId, // Passa o docId para a lista
-        onAddArticle = { listId ->
-            navController.navigate("add_article/$listId") // Navega para a tela de adicionar artigo
+        viewModel = viewModel,
+        onAddArticle = { docId ->
+            navController.navigate("add_article/$docId") // Navega para a tela de adicionar artigo
+        },
+        onShareList = { docId ->
+            navController.navigate("share_list/$docId") // Navega para a tela de partilhar lista
         }
     )
 }
@@ -271,7 +282,9 @@ fun EachListTypeView(
 fun EachListTypeViewContent(
     state: ListState,
     docId: String, // Identificador da lista
-    onAddArticle: (String) -> Unit
+    viewModel: EachListTypeViewModel = viewModel(),
+    onAddArticle: (String) -> Unit,
+    onShareList: (String) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -292,39 +305,75 @@ fun EachListTypeViewContent(
                     ) {
                         Checkbox(
                             checked = article.completed,
-                            onCheckedChange = { checked ->
-                                // Atualizar o estado do artigo
-                                println("Artigo ${article.name} foi ${if (checked) "marcado" else "desmarcado"}")
+                            onCheckedChange = { isChecked ->
+                                // Atualiza localmente o estado do artigo na lista
+                                val updatedArticle = article.copy(completed = isChecked)
+                                viewModel.updateSingleArticle(updatedArticle)
+
+                                // Atualiza no Firestore
+                                ListItemRepository.updateArticleCompletionStatus(
+                                    articleId = article.articleId,
+                                    docId = article.docId ?: "",
+                                    completed = isChecked,
+                                    onSuccess = {
+                                        Log.d(TAG, "Artigo ${article.name} atualizado com sucesso para: $isChecked")
+                                    },
+                                    onFailure = { exception ->
+                                        Log.e(TAG, "Erro ao atualizar o artigo: ${exception.message}")
+                                    }
+                                )
                             }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
                                 text = article.name,
-                                style = MaterialTheme.typography.titleMedium
+                                style = appFontBold16
                             )
                             Text(
                                 text = article.description,
-                                style = MaterialTheme.typography.bodyMedium
+//                                style = MaterialTheme.typography.bodyMedium
                             )
                         }
                     }
                 }
             }
+        }
+        // Botão de adicionar artigo
+        Button(
+            modifier = Modifier
+                .padding(16.dp)
+                .height(80.dp)
+                .width(80.dp),
+            onClick = { onAddArticle(docId) }, // Chama a função para navegar para adicionar artigo
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Green01,
+            )
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.baseline_add_24),
+                contentDescription = "Adicionar Artigo",
+                tint = Color.White
+            )
+        }
 
-            // Botão de adicionar artigo
-            Button(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .size(60.dp),
-                onClick = { onAddArticle(docId) } // Chama a função para navegar para adicionar artigo
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.baseline_add_24),
-                    contentDescription = "Adicionar Artigo",
-                    tint = Color.White
-                )
-            }
+        Button(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp)
+                .height(80.dp)
+                .width(80.dp),
+            onClick = { onShareList(docId) }, // Chama a função para navegar para adicionar artigo
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Gray, // Cor de fundo do botão
+//                contentColor = Color.White  // Cor do texto ou ícones dentro do botão
+            )
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.baseline_people_alt_24),
+                contentDescription = "Partilhar lista",
+                tint = Color.White
+            )
         }
     }
 }
@@ -355,6 +404,9 @@ fun EachListTypeViewPreview() {
             docId = "list1",
             onAddArticle = { listId ->
                 println("Preview: Adicionar artigo à lista $listId")
+            },
+            onShareList = { listId ->
+                println("Preview: Partilhar lista $listId")
             }
         )
     }
