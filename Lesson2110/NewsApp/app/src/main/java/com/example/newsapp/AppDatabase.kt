@@ -9,7 +9,7 @@ import com.example.newsapp.Models.ArticleCache
 import com.example.newsapp.Models.ArticleCacheDao
 
 
-@Database(entities = [ArticleCache::class], version = 2, exportSchema = false)
+@Database(entities = [ArticleCache::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun articleCacheDao(): ArticleCacheDao
 

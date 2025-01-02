@@ -1,5 +1,6 @@
 package com.example.newsapp.Models
 
+import android.util.Log
 import org.json.JSONObject
 import java.net.URLEncoder
 import java.util.Date
@@ -34,7 +35,17 @@ fun Date.toStringDate(): String {
 }
 
 fun Article.toJsonString(): String {
-    return Json.encodeToString(this)
+    val json = JSONObject().apply {
+        put("title", title ?: "")
+        put("description", description ?: "")
+        put("url", url ?: "")
+        put("urlToImage", urlToImage ?: "")
+        put("publishedAt", publishedAt ?: "")
+        put("author", author ?: "")
+        put("content", content ?: "")
+    }.toString()
+    Log.d("toJsonString", "JSON gerado: $json")
+    return json
 }
 
 @Serializable
@@ -46,28 +57,36 @@ data class Article(
     val publishedAt: String?, // Armazena como String
     val author: String?,
     val content: String?
-)
+) {
 
- {
+    companion object {
+        fun fromJson(articleObject: JSONObject): Article {
+            val title = articleObject.optString("titulo", "Título não disponível")
+            val description = articleObject.optString("descricao", "Descrição não disponível")
+            val url = articleObject.optString("url")
+            val urlToImage = articleObject.optString("multimediaPrincipal")
+            val publishedAt =
+                articleObject.optString("data").takeIf { it.isNotEmpty() } ?: "Data não disponível"
 
-     companion object {
-         fun fromJson(articleObject: JSONObject): Article {
-             val title = articleObject.optString("titulo")
-             val description = articleObject.optString("descricao")
-             val url = articleObject.optString("url")
-             val urlToImage = articleObject.optString("multimediaPrincipal")
-             val publishedAt = articleObject.optString("data").takeIf { it.isNotEmpty() } // Deixa como String
+            // Extraindo o nome do autor, caso exista
+            val authorsArray = articleObject.optJSONArray("autores")
+            val author = if (authorsArray != null && authorsArray.length() > 0) {
+                authorsArray.getJSONObject(0).optString("nome", "Autor desconhecido")
+            } else {
+                "Autor desconhecido"
+            }
 
-             // Extraindo o nome do autor, caso exista
-             val authorsArray = articleObject.optJSONArray("autores")
-             val author = if (authorsArray != null && authorsArray.length() > 0) {
-                 authorsArray.getJSONObject(0).optString("nome")
-             } else {
-                 null
-             }
+            Log.d("fromJson", "Artigo deserializado: Titulo=$title, URL=$url, Autor=$author")
 
-             return Article(title, description, url, urlToImage, publishedAt, author, null)
-         }
-     }
-
- }
+            return Article(
+                title = title,
+                description = description,
+                url = url,
+                urlToImage = urlToImage,
+                publishedAt = publishedAt,
+                author = author,
+                content = null // Ajuste caso tenha o campo 'content'
+            )
+        }
+    }
+}

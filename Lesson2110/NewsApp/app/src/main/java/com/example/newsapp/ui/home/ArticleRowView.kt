@@ -92,15 +92,15 @@ fun ArticleRowView(modifier: Modifier = Modifier, article: Article) {
 fun ArticleRowViewPreview() {
     val mockDate = "2024-12-08T16:17:05+00:00" // Representação como String no formato ISO-8601
 
-    val article = Article(
-        title = "Título de Exemplo",
-        description = "Descrição do artigo de exemplo.",
-        url = "https://www.example.com",
-        urlToImage = null,
-        publishedAt = mockDate, // Agora como String
-        author = "Autor Exemplo",
-        content = "Conteúdo do artigo de exemplo."
-    )
+//    val article = Article(
+//        title = "Título de Exemplo",
+//        description = "Descrição do artigo de exemplo.",
+//        url = "https://www.example.com",
+//        urlToImage = null,
+//        publishedAt = mockDate, // Agora como String
+//        author = "Autor Exemplo",
+//        content = "Conteúdo do artigo de exemplo."
+//    )
 
-    ArticleRowView(article = article)
+//    ArticleRowView(article = article)
 }

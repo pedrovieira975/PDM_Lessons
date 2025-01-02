@@ -56,6 +56,7 @@ fun MyTopBar(
             )
         },
         actions = {
+
             if (article != null) {
                 val isBookmarked = article.url in bookmarkedArticles
                 IconButton(
@@ -63,11 +64,14 @@ fun MyTopBar(
                         viewModel.saveArticleToBookmarks(context, article)
                     }
                 ) {
+//                    val isBookmarked = article.url in bookmarkedArticles
                     Icon(
                         imageVector = if (isBookmarked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = "Bookmark"
+                        contentDescription = if (isBookmarked) "Remover dos favoritos" else "Adicionar aos favoritos",
+                        tint = if (isBookmarked) Color.Red else Color.Gray // Cor adicional para visual
                     )
                 }
+
             }
         }
     )

@@ -39,7 +39,7 @@ fun BookmarksView(
 
     // Chama o teste ao carregar a aba
     LaunchedEffect(key1 = true) {
-        viewModel.testGetAllArticles(context) // Testa o DAO
+//        viewModel.testGetAllArticles(context) // Testa o DAO
         viewModel.loadBookmarks(context) // Carrega favoritos
     }
 
@@ -62,14 +62,14 @@ fun BookmarksViewContent(
 
     // Adicionar o botão de teste para exibir os artigos do banco
     Column(modifier = modifier.fillMaxSize()) {
-        Button(
-            onClick = {
-                viewModel.testInsertFixedArticle(context) // Testa salvamento fixo
-            },
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text("Salvar Artigo Fixo")
-        }
+//        Button(
+//            onClick = {
+//                viewModel.testInsertFixedArticle(context) // Testa salvamento fixo
+//            },
+//            modifier = Modifier.padding(16.dp)
+//        ) {
+//            Text("Salvar Artigo Fixo")
+//        }
 
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

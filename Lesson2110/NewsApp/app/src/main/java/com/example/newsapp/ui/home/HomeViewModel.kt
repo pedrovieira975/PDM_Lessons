@@ -118,12 +118,25 @@ class HomeViewModel : ViewModel() {
             val existing = database?.articleCacheDao()?.getAll()?.any { it.url == article.url } ?: false
 
             if (!existing) {
+                Log.d("ArticleSerialization", "Estado do artigo antes da serialização: $this")
+//                val completeArticle = article.copy(
+//                    title = article.title ?: "Título não disponível",
+//                    description = article.description ?: "Descrição não disponível",
+//                    author = article.author ?: "Autor desconhecido",
+//                    content = article.content ?: "Conteúdo não disponível"
+//                )
                 val articleCache = ArticleCache(
                     url = article.url, // URL já validada
+                    title = article.title,
+                    description = article.description,
+                    urlToImage = article.urlToImage,
+                    publishedAt = article.publishedAt,
+                    author = article.author,
+                    content = article.content,
                     articleJsonString = article.toJsonString()
                 )
                 val result = database?.articleCacheDao()?.insert(articleCache)
-                Log.d("SaveArticle", "Artigo salvo com sucesso: URL=${article.url}, Resultado=$result")
+                Log.d("SaveArticle", "Artigo salvo com sucesso: Titulo=${article.title}, URL=${article.url}, Resultado=$result")
             } else {
                 Log.d("SaveArticle", "Artigo já existe no banco: URL=${article.url}")
             }
@@ -176,38 +189,38 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun testDatabase(context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val database = AppDatabase.getDatabase(context)
-            val articles = database?.articleCacheDao()?.getAll()
-            articles?.forEach {
-                Log.d("DatabaseTest", "Artigo salvo: URL=${it.url}, JSON=${it.articleJsonString}")
-            }
-            Log.d("DatabaseTest", "Total de artigos no banco: ${articles?.size ?: 0}")
-        }
-    }
+//    fun testDatabase(context: Context) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val database = AppDatabase.getDatabase(context)
+//            val articles = database?.articleCacheDao()?.getAll()
+//            articles?.forEach {
+//                Log.d("DatabaseTest", "Artigo salvo: URL=${it.url}, JSON=${it.articleJsonString}")
+//            }
+//            Log.d("DatabaseTest", "Total de artigos no banco: ${articles?.size ?: 0}")
+//        }
+//    }
 
-    fun testGetAllArticles(context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val articles = AppDatabase.getDatabase(context)?.articleCacheDao()?.getAll()
-            articles?.forEach {
-                Log.d("DAOTest", "Artigo no banco: URL=${it.url}, JSON=${it.articleJsonString}")
-            }
-            Log.d("DAOTest", "Total de artigos no banco: ${articles?.size ?: 0}")
-        }
-    }
+//    fun testGetAllArticles(context: Context) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val articles = AppDatabase.getDatabase(context)?.articleCacheDao()?.getAll()
+//            articles?.forEach {
+//                Log.d("DAOTest", "Artigo no banco: URL=${it.url}, JSON=${it.articleJsonString}")
+//            }
+//            Log.d("DAOTest", "Total de artigos no banco: ${articles?.size ?: 0}")
+//        }
+//    }
 
-    fun testInsertFixedArticle(context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val articleCache = ArticleCache(
-                url = "https://teste.com/favorito",
-                articleJsonString = """{"title": "Artigo Teste", "description": "Descrição Teste"}"""
-            )
-            val result = AppDatabase.getDatabase(context).articleCacheDao().insert(articleCache)
-            Log.d("TestInsert", "Artigo inserido com resultado: $result")
-            logAllBookmarks(context) // Loga todos os artigos salvos
-        }
-    }
+//    fun testInsertFixedArticle(context: Context) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val articleCache = ArticleCache(
+//                url = "https://teste.com/favorito",
+//                articleJsonString = """{"title": "Artigo Teste", "description": "Descrição Teste"}"""
+//            )
+//            val result = AppDatabase.getDatabase(context).articleCacheDao().insert(articleCache)
+//            Log.d("TestInsert", "Artigo inserido com resultado: $result")
+//            logAllBookmarks(context) // Loga todos os artigos salvos
+//        }
+//    }
 
     fun getArticles(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
