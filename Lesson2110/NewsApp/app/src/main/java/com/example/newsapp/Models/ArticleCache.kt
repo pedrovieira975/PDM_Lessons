@@ -26,7 +26,6 @@ interface ArticleCacheDao {
     @Query("SELECT * FROM ArticleCache")
     fun getAll(): List<ArticleCache>
 
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(articleCache: ArticleCache): Long
 

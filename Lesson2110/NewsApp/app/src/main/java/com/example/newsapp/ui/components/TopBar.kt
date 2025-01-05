@@ -3,10 +3,9 @@ package com.example.newsapp
 import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
 import com.example.newsapp.Models.toJsonString
-
-//package com.example.newsapp
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -25,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import androidx.compose.material3.*
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.newsapp.ui.home.HomeViewModel
 
@@ -41,6 +41,11 @@ fun MyTopBar(
     val viewModel: HomeViewModel = viewModel()
     var searchText by remember { mutableStateOf("") }
     val bookmarkedArticles by viewModel.bookmarkedArticles.collectAsState()
+    val isBookmarked = article?.url in bookmarkedArticles
+
+    LaunchedEffect(Unit) {
+        viewModel.refreshBookmarkedArticles(context)
+    }
 
     TopAppBar(
         title = {
@@ -50,18 +55,25 @@ fun MyTopBar(
                     searchText = newText
                     onSearchQueryChanged(newText)
                 },
+                leadingIcon = {
+                    Icon(Icons.Filled.Search, contentDescription = "Search")
+                },
                 label = { Text("Search News") },
+                shape = RoundedCornerShape(20.dp),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         },
         actions = {
 
             if (article != null) {
-                val isBookmarked = article.url in bookmarkedArticles
+                //val isBookmarked = article.url in bookmarkedArticles
                 IconButton(
                     onClick = {
                         viewModel.saveArticleToBookmarks(context, article)
+                        if (isBookmarked) {
+                            viewModel.deleteArticleFromBookmarks(context, article)
+                        }
                     }
                 ) {
 //                    val isBookmarked = article.url in bookmarkedArticles
@@ -71,7 +83,6 @@ fun MyTopBar(
                         tint = if (isBookmarked) Color.Red else Color.Gray // Cor adicional para visual
                     )
                 }
-
             }
         }
     )

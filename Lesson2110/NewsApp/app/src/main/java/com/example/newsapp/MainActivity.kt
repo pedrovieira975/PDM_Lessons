@@ -1,6 +1,7 @@
 package com.example.newsapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,6 +21,7 @@ import com.example.newsapp.ui.ArticleDetailView
 import com.example.newsapp.ui.bookmarks.BookmarksView
 import com.example.newsapp.ui.home.HomeView
 import com.example.newsapp.ui.theme.NewsAppTheme
+import java.net.URLEncoder
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -56,8 +58,8 @@ class MainActivity : ComponentActivity() {
                             composable("home") {
                                 currentArticle.value = null // Define como tela base
                                 HomeView(
-                                    onArticleClick = { url ->
-                                        navController.navigate("article/$url")
+                                    onArticleClick = { article ->
+                                        navController.navigate("article/$article")
                                     }
                                 )
                             }
@@ -66,6 +68,12 @@ class MainActivity : ComponentActivity() {
                                 BookmarksView(
                                     onArticleClick = { url ->
                                         navController.navigate("article/$url")
+//                                                "article/${currentArticle.value?.title}" +
+//                                                "article/${currentArticle.value?.description}" +
+//                                                "article/${currentArticle.value?.urlToImage}" +
+//                                                "article/${currentArticle.value?.publishedAt}" +
+//                                                "article/${currentArticle.value?.author}" +
+//                                                "article/${currentArticle.value?.content}")
                                     }
                                 )
                             }
