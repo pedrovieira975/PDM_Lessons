@@ -13,6 +13,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.BlendMode.Companion.Screen
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
@@ -32,7 +34,7 @@ data class BottomNavigationItem (
     val title : String,
     val selectedIcon : ImageVector,
     val unSelectedIcon : ImageVector,
-    val screen : Screen
+    val screen : Screen,
 )
 
 
@@ -52,7 +54,7 @@ fun MyBottomBar(navController: NavController) {
             title = "Bookmarks",
             selectedIcon = Icons.Filled.Favorite,
             unSelectedIcon = Icons.Filled.FavoriteBorder,
-            screen = com.example.newsapp.ui.components.Screen.Bookmarks
+            screen = com.example.newsapp.ui.components.Screen.Bookmarks,
         )
     )
 
