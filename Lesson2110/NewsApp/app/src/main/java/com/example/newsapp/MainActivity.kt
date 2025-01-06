@@ -68,16 +68,10 @@ class MainActivity : ComponentActivity() {
                                 BookmarksView(
                                     onArticleClick = { url ->
                                         navController.navigate("article/$url")
-//                                                "article/${currentArticle.value?.title}" +
-//                                                "article/${currentArticle.value?.description}" +
-//                                                "article/${currentArticle.value?.urlToImage}" +
-//                                                "article/${currentArticle.value?.publishedAt}" +
-//                                                "article/${currentArticle.value?.author}" +
-//                                                "article/${currentArticle.value?.content}")
                                     }
                                 )
                             }
-                            composable("article/{url}") { backStackEntry ->
+                            composable("article/{url}?title={title}&description={description}&urlToImage={urlToImage}&publishedAt={publishedAt}&author={author}&content={content}") { backStackEntry ->
                                 val url = backStackEntry.arguments?.getString("url")
                                 val title = backStackEntry.arguments?.getString("title")
                                 val description = backStackEntry.arguments?.getString("description")

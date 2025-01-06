@@ -19,6 +19,7 @@ fun ArticleDetailView(url: String) {
     },
         update = { webView ->
             webView.loadUrl(url ?: "")
+
         })
 }
 

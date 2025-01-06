@@ -26,6 +26,7 @@ import com.example.newsapp.ui.home.ArticleRowView
 import com.example.newsapp.ui.home.ArticleState
 import com.example.newsapp.ui.home.HomeViewModel
 import com.example.newsapp.ui.theme.NewsAppTheme
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -37,17 +38,27 @@ fun BookmarksView(
     val viewModel: HomeViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
 
-    // Chama o teste ao carregar a aba
-    LaunchedEffect(key1 = true) {
-//        viewModel.testGetAllArticles(context) // Testa o DAO
-        viewModel.loadBookmarks(context) // Carrega favoritos
-    }
-
     BookmarksViewContent(
         modifier = modifier,
         uiState = uiState,
         onArticleClick = onArticleClick
     )
+
+    LaunchedEffect(key1 = true) {
+//        viewModel.testGetAllArticles(context) // Testa o DAO
+        //viewModel.loadBookmarks(context) // Carrega favoritos
+//        viewModel.fetchArticleByUrl(context, "") { article ->
+//            if (article != null) {
+//                Log.d("HomeView", "Artigo carregado: $article")
+//                // Aqui podes atualizar o estado da UI ou guardar nos favoritos
+//            } else {
+//                Log.e("HomeView", "Erro: Artigo não encontrado.")
+//            }
+//        }
+        Log.d("BookmarksView", "Artigos disponíveis na UI: ${uiState.articles.size}")
+        delay(100)
+        viewModel.loadBookmarksWithDetails(context)
+    }
 }
 
 
@@ -57,8 +68,7 @@ fun BookmarksViewContent(
     uiState: ArticleState,
     onArticleClick: (String) -> Unit = {}
 ) {
-    val context = LocalContext.current
-    val viewModel: HomeViewModel = viewModel()
+//    val context = LocalContext.current
 
     // Adicionar o botão de teste para exibir os artigos do banco
     Column(modifier = modifier.fillMaxSize()) {
@@ -82,6 +92,9 @@ fun BookmarksViewContent(
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 itemsIndexed(items = uiState.articles) { _, item ->
+                    LaunchedEffect(uiState.articles) {
+                        Log.d("BookmarksViewContent", "Número de artigos no estado: ${uiState.articles.size}")
+                    }
                     ArticleRowView(
                         modifier = Modifier.clickable {
                             onArticleClick(item.url?.encodeURL() ?: "")
