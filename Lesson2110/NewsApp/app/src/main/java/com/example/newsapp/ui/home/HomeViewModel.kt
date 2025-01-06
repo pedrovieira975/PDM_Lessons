@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -107,6 +108,7 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
+
     fun saveArticleToBookmarks(context: Context, article: Article) {
         viewModelScope.launch(Dispatchers.IO) {
             if (article.url.isNullOrBlank()) {
@@ -115,14 +117,18 @@ class HomeViewModel : ViewModel() {
             }
 
             val database = AppDatabase.getDatabase(context)
-            val existing = database?.articleCacheDao()?.getAll()?.any { it.url == article.url } ?: false
+            val existing =
+                database.articleCacheDao().getAll().any { it.url == article.url } ?: false
 
             if (!existing) {
                 val articleJsonString = article.toJsonString()
-                Log.d("ArticleSerialization", "Estado do artigo antes da serialização: $articleJsonString")
+                Log.d(
+                    "ArticleSerialization",
+                    "Estado do artigo antes da serialização: $articleJsonString"
+                )
 
                 val articleCache = ArticleCache(
-                    url = article.url, // URL já validada
+                    url = article.url,
                     title = article.title.orEmpty(),
                     description = article.description.orEmpty(),
                     urlToImage = article.urlToImage.orEmpty(),
@@ -131,8 +137,12 @@ class HomeViewModel : ViewModel() {
                     content = article.content.orEmpty(),
                     articleJsonString = article.toJsonString()
                 )
-                val result = database?.articleCacheDao()?.insert(articleCache)
-                Log.d("SaveArticle", "Artigo salvo com sucesso: Titulo=${article.title}, URL=${article.url}, Resultado=$result")
+
+                val result = database.articleCacheDao().insert(articleCache)
+                Log.d(
+                    "SaveArticle",
+                    "Artigo salvo com sucesso: Titulo=${article.title}, URL=${article.url}, Resultado=$result"
+                )
             } else {
                 Log.d("SaveArticle", "Artigo já existe no banco: URL=${article.url}")
             }
@@ -148,25 +158,31 @@ class HomeViewModel : ViewModel() {
             val result = articleCache?.let {
                 database.articleCacheDao().delete(it)
             }
-            Log.d("DeleteArticle", "Artigo deletado com sucesso: URL=${article.url}, Resultado=$result")
+            Log.d(
+                "DeleteArticle",
+                "Artigo deletado com sucesso: URL=${article.url}, Resultado=$result"
+            )
             refreshBookmarkedArticles(context) // Atualiza a lista de favoritos
-            }
-
         }
+
+    }
 
 
     fun loadBookmarks(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val articlesCache = AppDatabase.getDatabase(context)?.articleCacheDao()?.getAll()
-            if (articlesCache.isNullOrEmpty()) {
+            val articlesCache = AppDatabase.getDatabase(context).articleCacheDao().getAll()
+            if (articlesCache.isEmpty()) {
                 Log.d("BookmarksLoad", "Nenhum artigo encontrado no banco.")
             } else {
                 articlesCache.forEach {
-                    Log.d("BookmarksLoad", "Artigo carregado do banco: URL=${it.url}, JSON=${it.articleJsonString}")
+                    Log.d(
+                        "BOOKSMARK LOAD",
+                        "Artigo carregado do banco: URL=${it.url}, JSON=${it.articleJsonString}"
+                    )
                 }
             }
 
-            val bookmarks = articlesCache?.map {
+            val bookmarks = articlesCache.map {
                 Article.fromJson(JSONObject(it.articleJsonString))
             } ?: emptyList()
 
@@ -193,28 +209,89 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val articlesCache = AppDatabase.getDatabase(context)?.articleCacheDao()?.getAll()
             articlesCache?.forEach { cachedArticle ->
-                Log.d("BookmarksCheck", "Artigo no banco: URL=${cachedArticle.url}, JSON=${cachedArticle.articleJsonString}")
+                Log.d(
+                    "BookmarksCheck",
+                    "Artigo no banco: URL=${cachedArticle.url}, JSON=${cachedArticle.articleJsonString}"
+                )
             }
             Log.d("BookmarksCheck", "Total de favoritos no banco: ${articlesCache?.size ?: 0}")
         }
     }
 
-    fun getArticles(context: Context) {
+suspend fun fetchArticleByUrl(context: Context, url: String): Article? {
+    if (url.isBlank()) {
+        Log.e("FetchArticleByUrl", "URL está vazio. Ignorando busca.")
+        return null
+    }
+
+    return withContext(Dispatchers.IO) {
+        try {
+            val client = OkHttpClient()
+            val request = Request.Builder().url("https://www.publico.pt/api/list/ultimas").build()
+
+            val response = client.newCall(request).execute()
+            if (response.isSuccessful) {
+                val result = response.body!!.string()
+                val articlesArray = JSONArray(result)
+
+                val articleObject = (0 until articlesArray.length())
+                    .map { articlesArray.getJSONObject(it) }
+                    .find { it.optString("url") == url }
+
+                articleObject?.let { Article.fromJson(it) }
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("FetchArticleByUrl", "Erro ao buscar artigo: ${e.message}", e)
+            null
+        }
+    }
+}
+
+
+    fun loadBookmarksWithDetails(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val articlesCache = AppDatabase
-                .getDatabase(context)
-                ?.articleCacheDao()
-                ?.getAll()
+            try {
+                val database = AppDatabase.getDatabase(context)
+                val articlesCache = database.articleCacheDao().getAll()
 
-            val articles: List<Article> = articlesCache?.map {
-                Article.fromJson(JSONObject(it.articleJsonString))
-            } ?: emptyList()
+                if (articlesCache.isEmpty()) {
+                    Log.d("Bookmarks", "Nenhum artigo encontrado nos favoritos.")
+                    launch(Dispatchers.Main) {
+                        _uiState.value = _uiState.value.copy(
+                            articles = arrayListOf(),
+                            errorMessage = "Nenhum artigo nos favoritos."
+                        )
+                    }
+                    return@launch
+                }
 
-            viewModelScope.launch(Dispatchers.Main) {
-                _uiState.value = ArticleState(
-                    articles = ArrayList(articles),
-                    isLoading = false
-                )
+                // Lista de artigos completos com processamento síncrono
+                val completeArticles = articlesCache.mapNotNull { cachedArticle ->
+                    val url = cachedArticle.url
+                    Log.d("LoadBookmarks", "Buscando artigo com URL: $url")
+
+                    // Busca os detalhes do artigo
+                    fetchArticleByUrl(context, url)
+                }
+
+                // Atualiza a UI na Main Thread
+                viewModelScope.launch(Dispatchers.Main) {
+                    Log.d("LoadBookmarks", "Atualizando UI com ${completeArticles.size} artigos.")
+                    _uiState.value = _uiState.value.copy(
+                        articles = ArrayList(completeArticles)
+                    )
+                    Log.d("LoadBookmarks", "Estado final: ${_uiState.value.articles.size} artigos.")
+                }
+            } catch (e: Exception) {
+                Log.e("LoadBookmarks", "Erro ao carregar favoritos: ${e.message}")
+                launch(Dispatchers.Main) {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Erro ao carregar favoritos.",
+                        isLoading = false
+                    )
+                }
             }
         }
     }

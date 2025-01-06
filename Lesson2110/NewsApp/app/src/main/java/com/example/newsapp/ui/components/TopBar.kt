@@ -3,6 +3,7 @@ package com.example.newsapp
 import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
 import com.example.newsapp.Models.toJsonString
@@ -61,7 +62,11 @@ fun MyTopBar(
                 label = { Text("Search News") },
                 shape = RoundedCornerShape(20.dp),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth() .padding(end = 16.dp),
+                colors = TextFieldDefaults.colors(
+                    unfocusedIndicatorColor = Color.Transparent, // Linha ao perder foco
+                    focusedIndicatorColor = Color.Transparent // Linha ao ganhar foco
+                )
             )
         },
         actions = {
